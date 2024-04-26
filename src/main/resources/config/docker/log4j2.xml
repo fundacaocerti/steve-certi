@@ -21,13 +21,13 @@
         <AsyncLogger name="com.zaxxer.hikari" level="INFO"/>
         <AsyncLogger name="org.springframework" level="INFO"/>
         <AsyncLogger name="org.springframework.security" level="INFO"/>
-        <AsyncLogger name="org.springframework.web.servlet" level="INFO"/>
+        <AsyncLogger name="org.springframework.web.servlet" level="DEBUG"/>
 
         <AsyncLogger name="org.apache.jasper" level="WARN"/>
         <AsyncLogger name="org.apache.tomcat.util" level="WARN"/>
         <AsyncLogger name="jndi" level="WARN"/>
 
-        <AsyncRoot level="INFO">
+        <AsyncRoot level="DEBUG">
             <AppenderRef ref="CONSOLE"/>
         </AsyncRoot>
     </Loggers>

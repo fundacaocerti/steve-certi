@@ -1,0 +1,20 @@
+#/*******************************************************************************
+# * Copyright (c) 2024 - Fundação CERTI
+# * All rights reserved.
+# *******************************************************************************/
+
+FROM mariadb:10.4.30
+
+MAINTAINER certi.org.br
+
+EXPOSE 3306
+
+ENV MYSQL_RANDOM_ROOT_PASSWORD YES
+
+ENV MYSQL_DATABASE stevedb
+
+ENV MYSQL_USER steve
+
+ENV MYSQL_PASSWORD changeme
+
+WORKDIR /code
