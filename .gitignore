@@ -1,3 +1,14 @@
+#/*******************************************************************************
+# * Copyright (c) 2024 - Fundação CERTI
+# * All rights reserved.
+# *******************************************************************************/
+
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
 /target
 /.idea
 *.iml
