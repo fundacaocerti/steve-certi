@@ -5,15 +5,12 @@
 # ******************************************************************************/
 
 import logging
+import logging.config
 
 from charge_point_dummy.charge_point_dummy import ChargePointDummy
 
 def main() -> None:
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s %(levelname)s %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
+    logging.config.fileConfig('logging_config.ini')
 
     url = "ws://172.18.0.3:8180/steve/websocket/CentralSystemService/CP001"
 

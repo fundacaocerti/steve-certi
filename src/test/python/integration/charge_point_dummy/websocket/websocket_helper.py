@@ -6,7 +6,7 @@
 import logging
 import websocket
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('ChargePointDummy')
 
 class WebSocketHelper:
     def __init__(self, verbose):
