@@ -5,9 +5,10 @@
 # ******************************************************************************/
 
 import logging
+
 import logging.config
 
-from charge_point_dummy.charge_point_dummy import ChargePointDummy
+from charge_point_dummy import ChargePointDummy
 
 from pathlib import Path
 
@@ -16,7 +17,7 @@ def main() -> None:
 
     filename = 'logging_config.ini'
 
-    full_path_name = '{}/{}'.format(current_directory.parent, filename)
+    full_path_name = '{}/{}'.format(current_directory.parent.parent, filename)
 
     logging.config.fileConfig(full_path_name)
 
