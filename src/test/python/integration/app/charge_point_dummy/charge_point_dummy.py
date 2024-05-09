@@ -3,26 +3,23 @@
 # * All rights reserved.
 # ******************************************************************************/
 
-import sys
-import json
-import dataclasses
 import uuid
 
-from .messages.payload import (
+from v16.payload import (
     BootNotificationPayload,
     StatusNotificationPayload,
     HeartbeatPayload,
     ChangeAvailabilityPayload
 )
 
-from .types.enums import (
+from v16.enums import (
     Action,
     AvailabilityStatus,
     ChargePointStatus,
     ChargePointErrorCode
 )
 
-from .websocket.websocket_helper import WebSocketHelper
+from protocol.websocket import WebSocketHelper
 
 class ChargePointDummy:
     def __init__(self, url):

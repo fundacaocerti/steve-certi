@@ -24,6 +24,7 @@ RUN export JAVA_HOME
 RUN apt update && \
     apt install -y openjdk-17-jdk && \
     apt install -y ant && \
+    apt install -y libmariadb-dev && \
     apt clean && \
     rm -rf /var/lib/apt/lists/ && \
     rm -rf /var/cache/oracle-jdk17-installer

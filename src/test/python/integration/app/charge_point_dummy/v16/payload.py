@@ -5,15 +5,18 @@
 
 import json
 
-from dataclasses import dataclass, asdict
+from dataclasses import (
+    dataclass,
+    asdict
+)
 
-from charge_point_dummy.types.enums import (
+from v16.enums import (
     AvailabilityStatus,
     ChargePointErrorCode,
     ChargePointStatus
 )
 
-from charge_point_dummy.util.string_handling import snake_to_camel
+from util.string_handling import snake_to_camel
 
 ###
 # call-type messages

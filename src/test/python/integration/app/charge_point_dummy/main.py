@@ -5,12 +5,21 @@
 # ******************************************************************************/
 
 import logging
+
 import logging.config
 
-from charge_point_dummy.charge_point_dummy import ChargePointDummy
+from charge_point_dummy import ChargePointDummy
+
+from pathlib import Path
 
 def main() -> None:
-    logging.config.fileConfig('logging_config.ini')
+    current_directory = Path.cwd()
+
+    filename = 'logging_config.ini'
+
+    full_path_name = '{}/{}'.format(current_directory.parent.parent, filename)
+
+    logging.config.fileConfig(full_path_name)
 
     url = "ws://172.18.0.3:8180/steve/websocket/CentralSystemService/CP001"
 
