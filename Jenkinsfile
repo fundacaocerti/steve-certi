@@ -17,13 +17,13 @@ pipeline {
         stage('Agent test') {
             agent {
                 docker {
-                    reuseNode true
-                    image 'docker:dind'
-                    args '-u root:sudo -v ${WORKSPACE}:/mobeq -w /mobeq -e TERM=xterm'
+                    image 'docker:dind-rootless'
+                    args '--privileged -u root:root'
                 }
             }
             steps {
-                sh 'docker-compose -f scripts/docker-compose-test.yml up --build --exit-code-from app'
+                sh 'dockerd-entrypoint.sh &'
+                sh 'sleep 10 && export DOCKER_BUILDKIT=1 && docker compose -f scripts/docker-compose-test.yml up --build --exit-code-from app'
             }
         }
     }
