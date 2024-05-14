@@ -30,6 +30,7 @@ pipeline {
     post {
         // Clean after build
         always {
+            archiveArtifacts artifacts: 'steve_logs.log', fingerprint: true
             cleanWs()
 	}
     }
