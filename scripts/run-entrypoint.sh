@@ -1,17 +1,8 @@
+#!/usr/bin/env bash
 #/*******************************************************************************
 # * Copyright (c) 2024 - Fundação CERTI
 # * All rights reserved.
 # *******************************************************************************/
-
-### Python ###
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-/target
-/.idea
-*.iml
-.DS_Store
-
-./steve_logs.log
+set -e
+/code/scripts/steve-certi-build.sh 
+/code/scripts/steve-certi-run.sh
