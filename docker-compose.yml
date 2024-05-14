@@ -1,18 +1,12 @@
-version: "3.0"
-
-volumes:
-  db-data:
-    external: false
-
 services:
-
-  db:
+  steve-certi-db:
     # Pinning MariaDB to point release 10.4.30 works around the issues with the
     # database migrations seen with 10.4.31 in issue #1212.
     #
     # TODO: Get database migrations to work with the latest point releases of
     # MariaDB 10.4.
-    image: mariadb:10.4.30
+    build:
+      dockerfile: docker/Dockerfile.db
     ports:
       - 3306:3306
     environment:
@@ -22,13 +16,11 @@ services:
       MYSQL_PASSWORD: changeme
 
   app:
-    build: .
-    links:
-      - "db:mariadb"
+    build: 
+      dockerfile: docker/Dockerfile.app
     volumes:
-      - .:/code
+      - ./:/code
     ports:
       - "8180:8180"
       - "8443:8443"
-    depends_on:
-      - db
+    entrypoint: /code/scripts/run-entrypoint.sh
