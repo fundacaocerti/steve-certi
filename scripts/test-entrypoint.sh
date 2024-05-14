@@ -5,6 +5,6 @@
 # *******************************************************************************/
 set -e
 /code/scripts/steve-certi-build.sh 
-/code/scripts/steve-certi-run.sh &
+$(/code/scripts/steve-certi-run.sh | tee steve_logs.log) &
 /code/scripts/wait-for.sh --host=localhost --port=8180 --timeout=20 
 /code/scripts/shortcuts/integration-test-runner
