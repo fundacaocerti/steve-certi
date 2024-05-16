@@ -14,4 +14,6 @@ sys.path.append(str( cwd.parent ))
 
 sys.path.append(str( cwd / 'app' ))
 
-pytest.main(['-vv'])
+errors = pytest.main(['-vv'])
+
+exit(errors)

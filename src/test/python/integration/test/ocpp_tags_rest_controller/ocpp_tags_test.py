@@ -4,7 +4,6 @@
 # ******************************************************************************/
 
 import pytest
-import json
 
 from app_dummy.app_dummy import AppDummy
 from app_dummy.enums import HttpResponseStatusCodeType
@@ -27,12 +26,14 @@ def setup_database():
     database.delete_all_charge_points()
     database.disconnect()
 
-@pytest.fixture
-def setup_get_ocpp_tags():
-    return AppDummy('GET', '/steve/api/v1/ocppTags')
+def test_get_ocpp_tags_successful(setup_database):
+    app = AppDummy("GET", "/steve/api/v1/ocppTags")
 
-def test_get_ocpp_tags_successful(setup_database, setup_get_ocpp_tags):
-    response = setup_get_ocpp_tags.request()
+    app.headers =  {"Content-Type":"application/json"}
+
+    app.headers = {"api-key":"certi"}
+
+    response = app.request()
 
     assert response.status_code == HttpResponseStatusCodeType.OK
 
@@ -78,18 +79,18 @@ def test_get_ocpp_tags_successful(setup_database, setup_get_ocpp_tags):
 
     assert outcome == expected
 
-def test_get_ocpp_tags_unauthorized(setup_database, setup_get_ocpp_tags):
-    WRONG_KEY = '"!@#$'
+def test_get_ocpp_tags_unauthorized(setup_database):
+    app = AppDummy("GET", "/steve/api/v1/ocppTags")
 
-    setup_get_ocpp_tags.key = WRONG_KEY
+    app.headers = {"Content-Type":"application/json"}
 
-    response = setup_get_ocpp_tags.request()
+    response = app.request()
 
     expected = {
         "error": "Unauthorized",
         "message": "Full authentication is required to access this resource",
         "path": "http://localhost:8180/steve/api/v1/ocppTags",
-        "status": 401
+        "status": HttpResponseStatusCodeType.UNAUTHORIZED
     }
 
     outcome = response.json()
@@ -98,18 +99,20 @@ def test_get_ocpp_tags_unauthorized(setup_database, setup_get_ocpp_tags):
 
     assert outcome == expected
 
-@pytest.fixture
-def setup_post_ocpp_tags():
-    return AppDummy('POST', '/steve/api/v1/ocppTags')
+def test_post_ocpp_tags_successful(setup_database):
+    app = AppDummy('POST', "/steve/api/v1/ocppTags")
 
-def test_post_ocpp_tags_successful(setup_database, setup_post_ocpp_tags):
-    setup_post_ocpp_tags.payload = {
+    app.headers = {"Content-Type":"application/json"}
+
+    app.headers = {"api-key":"certi"}
+
+    app.payload = {
         "idTag":"TAG003",
         "maxActiveTransactionCount": 2,
         "note": "just for testing"
     }
 
-    response = setup_post_ocpp_tags.request()
+    response = app.request()
 
     assert response.status_code == HttpResponseStatusCodeType.CREATED
 
@@ -131,18 +134,18 @@ def test_post_ocpp_tags_successful(setup_database, setup_post_ocpp_tags):
 
     assert outcome == expected
 
-def test_post_ocpp_tags_unauthorized(setup_database, setup_post_ocpp_tags):
-    WRONG_KEY = '+_)(*'
+def test_post_ocpp_tags_unauthorized(setup_database):
+    app = AppDummy("POST", "/steve/api/v1/ocppTags")
 
-    setup_post_ocpp_tags.key = WRONG_KEY
+    app.headers = {"Content-Type":"application/json"}
 
-    response = setup_post_ocpp_tags.request()
+    response = app.request()
 
     expected = {
         "error": "Unauthorized",
         "message": "Full authentication is required to access this resource",
         "path": "http://localhost:8180/steve/api/v1/ocppTags",
-        "status": 401
+        "status": HttpResponseStatusCodeType.UNAUTHORIZED
     }
 
     outcome = response.json()

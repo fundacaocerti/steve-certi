@@ -10,13 +10,15 @@ from dataclasses import (
     asdict
 )
 
-from v16.enums import (
+from charge_point_dummy.v16.enums import (
     AvailabilityStatus,
     ChargePointErrorCode,
     ChargePointStatus
 )
 
-from util.string_handling import snake_to_camel
+from charge_point_dummy.util.string_handling import snake_to_camel
+
+from typing import Optional
 
 ###
 # call-type messages
@@ -29,6 +31,13 @@ class ToJson():
 class BootNotificationPayload(ToJson):
     charge_point_vendor: str
     charge_point_model: str
+    charge_box_serial_number: Optional[str] = None
+    charge_point_serial_number: Optional[str] = None
+    firmware_version: Optional[str] = None
+    iccid: Optional[str] = None
+    imsi: Optional[str] = None
+    meter_serial_number: Optional[str] = None
+    meter_type: Optional[str] = None
 
 @dataclass
 class StatusNotificationPayload(ToJson):
