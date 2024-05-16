@@ -49,6 +49,26 @@ class ChargePointDummy:
                 ChargePointStatus.AVAILABLE.value,
                 ChargePointErrorCode.NO_ERROR.value
             )
+    def update_status(self, status, error_code) -> None:
+        '''
+        This method is responsible for establishing the connection with the endpoint
+        and transmitting messages that will prompt the central system to recognize
+        resources from our fictional station.
+        '''
+        self.__ws.connect(self.__url)
+
+        self.heartbeat_req()
+
+        NUMBER_OF_CONNECTORS = 2
+
+        for index in range(NUMBER_OF_CONNECTORS):
+            connector_id = index + 1;
+
+            self.status_notification_req(
+                connector_id,
+                status,
+                error_code
+            )
 
     def deinit(self) -> None:
         '''
