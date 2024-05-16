@@ -5,21 +5,21 @@
 
 import uuid
 
-from v16.payload import (
+from charge_point_dummy.v16.payload import (
     BootNotificationPayload,
     StatusNotificationPayload,
     HeartbeatPayload,
     ChangeAvailabilityPayload
 )
 
-from v16.enums import (
+from charge_point_dummy.v16.enums import (
     Action,
     AvailabilityStatus,
     ChargePointStatus,
     ChargePointErrorCode
 )
 
-from protocol.websocket import WebSocketHelper
+from charge_point_dummy.protocol.websocket import WebSocketHelper
 
 class ChargePointDummy:
     def __init__(self, url):
@@ -144,8 +144,14 @@ class ChargePointDummy:
         This method is responsible for sending the BootNotification call message and
         awaiting the response in order to capture the heartbeat interval
         '''
-        payload = BootNotificationPayload(charge_point_vendor = 'CERTI',
-                                          charge_point_model = 'Type2')
+        payload = BootNotificationPayload('CERTI', 'Type2')
+        payload.charge_box_serial_number = 'SN/CB001'
+        payload.charge_point_serial_number = 'SN/CP001'
+        payload.firmware_version = '1.0.23v'
+        payload.iccid = '891460 0000 0000 0012'
+        payload.imsi = '234 15 0829435109'
+        payload.meter_serial_number = 'SN/MT001'
+        payload.meter_type = 'Analog meters'
 
         call = self.create_call_message(Action.BOOT_NOTIFICATION.value,
                                         payload.to_json())

@@ -4,53 +4,42 @@
 # ******************************************************************************/
 
 import requests
+import json
 
 class AppDummy:
     def __init__(self, method, path):
         self.__method = method
         self.__path = path
-        self.__key = 'certi'
-        self.__payload = None
+        self.__payload = {}
+        self.__headers = {}
 
     @property
-    def method(self):
+    def header(self):
+        return self.__headers
+
+    @header.setter
+    def header(self, v : str) -> None:
+        self.__headers.update(v)
+
+    @property
+    def method(self) -> str:
         return self.__method
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self.__path
 
     @property
-    def key(self):
-        return self.__key
-
-    @key.setter
-    def key(self, key):
-        self.__key = key
-
-    @property
-    def payload(self):
+    def payload(self) -> str:
         return self.__payload
 
     @payload.setter
-    def payload(self, payload):
+    def payload(self, payload) -> None:
         self.__payload = payload
 
-    def url(self):
-        url = 'http://localhost:8180{}'.format(self.path)
-
-        return url
-
-    def header(self):
-        header = {
-            'Content-Type':'application/json',
-            'api-key':self.key
-        }
-
-        return header
+    def url(self) -> str:
+        return 'http://localhost:8180{}'.format(self.path)
 
     def request(self):
-        response = requests.request(
-            self.method, self.url(), headers=self.header(), json=self.payload)
-
-        return response
+        return requests.request(self.method, self.url(), headers=self.headers,
+                                json=self.payload)
