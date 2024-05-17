@@ -23,6 +23,7 @@ def list_of_dictionaries_are_equal(dictionary_list1,dictionary_list2):
     list2_frozensets = [frozenset(dictionary.items()) for dictionary in dictionary_list2]
     # Use Counter to count occurrences of each frozenset
     return Counter (list1_frozensets) == Counter(list2_frozensets)
+
 class TestCurrentStatus:
     @property
     def operation(self) -> str:
@@ -119,11 +120,13 @@ class TestCurrentStatus:
     def test_successful_not_available(self, add_a_charging_point_to_the_database):
         charge_box_id = "CP001"
 
+        status_notification_delay = 1
+
         uri = f"{self.websocket_endpoint}/{charge_box_id}"
 
         charge_point = ChargePointDummy(uri)
 
-        charge_point.init()
+        charge_point.init(status_notification_delay)
 
         connector_id_1 = 1
 

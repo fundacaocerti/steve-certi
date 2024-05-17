@@ -14,4 +14,4 @@ __pycache__/
 *.iml
 .DS_Store
 
-./steve_logs.log
+steve_logs.log

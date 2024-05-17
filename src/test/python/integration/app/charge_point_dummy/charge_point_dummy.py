@@ -3,6 +3,7 @@
 # * All rights reserved.
 # ******************************************************************************/
 
+import time
 import uuid
 
 from charge_point_dummy.v16.payload import (
@@ -27,11 +28,14 @@ class ChargePointDummy:
         self.__url = url
         self.__interval = None
 
-    def init(self) -> None:
+    def init(self, status_notification_delay = 0) -> None:
         '''
         This method is responsible for establishing the connection with the endpoint
         and transmitting messages that will prompt the central system to recognize
         resources from our fictional station.
+
+        Optional kwarg:
+        status_notification_delay - Integer: seconds to wait after producing first status notification
         '''
         self.__ws.connect(self.__url)
 
@@ -49,6 +53,7 @@ class ChargePointDummy:
                 ChargePointStatus.AVAILABLE.value,
                 ChargePointErrorCode.NO_ERROR.value
             )
+        time.sleep(status_notification_delay)
 
     def deinit(self) -> None:
         '''
