@@ -4,7 +4,7 @@
 # ******************************************************************************/
 
 import pytest
-import time 
+
 from app_dummy.app_dummy import AppDummy
 from app_dummy.enums import HttpResponseStatusCodeType
 from charge_point_dummy.charge_point_dummy import ChargePointDummy
@@ -15,6 +15,7 @@ from charge_point_dummy.v16.enums import (
     ChargePointStatus,
     ChargePointErrorCode
 )
+
 class TestCurrentStatus:
     @property
     def operation(self) -> str:
@@ -75,25 +76,38 @@ class TestCurrentStatus:
 
         assert response.headers["Content-Type"] == "application/json"
 
-        expected = {
-            "connectorId": charge_box_id,
-            "errorCode": ChargePointErrorCode.NO_ERROR.value,
-            "info": None,
-            "status": ChargePointStatus.AVAILABLE.value,
-            "timestamp": "2024-05-15T19:11:30.518Z",
-            "vendorId": None,
-            "vendorErrorCode": None
-        }
-        expected.pop("timestamp")
+        connector_id_1 = 1
+
+        connector_id_2 = 2
+
+        expected = [
+            {
+                "connectorId": connector_id_1,
+                "errorCode": ChargePointErrorCode.NO_ERROR.value,
+                "info": None,
+                "status": ChargePointStatus.AVAILABLE.value,
+                "vendorId": None,
+                "vendorErrorCode": None,
+            },
+            {
+                "connectorId": connector_id_2,
+                "errorCode": ChargePointErrorCode.NO_ERROR.value,
+                "info": None,
+                "status": ChargePointStatus.AVAILABLE.value,
+                "vendorId": None,
+                "vendorErrorCode" : None,
+            },
+        ]
+
         outcome = response.json()
 
-        assert outcome.pop("timestamp") is not None
+        assert outcome[0].pop("timestamp") is not None
 
+        assert outcome[1].pop("timestamp") is not None
 
         assert outcome == expected
 
         charge_point.deinit()
-
 
     def test_successful_not_available(self, add_a_charging_point_to_the_database):
         charge_box_id = "CP001"
@@ -104,8 +118,15 @@ class TestCurrentStatus:
 
         charge_point.init()
 
-        charge_point.update_status(ChargePointStatus.UNAVAILABLE.value,
-                ChargePointErrorCode.INTERNAL_ERROR.value)
+        connector_id_1 = 1
+
+        charge_point.status_notification_req(connector_id_1, ChargePointStatus.UNAVAILABLE.value,
+                                             ChargePointErrorCode.NO_ERROR.value)
+
+        connector_id_2 = 2
+
+        charge_point.status_notification_req(connector_id_2, ChargePointStatus.UNAVAILABLE.value,
+                                             ChargePointErrorCode.NO_ERROR.value)
 
         api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
 
@@ -121,18 +142,30 @@ class TestCurrentStatus:
 
         assert response.headers["Content-Type"] == "application/json"
 
-        expected = {
-            "connectorId": charge_box_id,
-            "errorCode": ChargePointErrorCode.INTERNAL_ERROR.value,
-            "info": None,
-            "status": ChargePointStatus.UNAVAILABLE.value,
-            "timestamp": "2024-05-15T19:11:30.518Z",
-            "vendorId": None,
-            "vendorErrorCode": None
-        }
+        expected = [
+            {
+                "connectorId": connector_id_1,
+                "errorCode": ChargePointErrorCode.NO_ERROR.value,
+                "info": None,
+                "status": ChargePointStatus.UNAVAILABLE.value,
+                "vendorId": None,
+                "vendorErrorCode": None,
+            },
+            {
+                "connectorId": connector_id_2,
+                "errorCode": ChargePointErrorCode.NO_ERROR.value,
+                "info": None,
+                "status": ChargePointStatus.UNAVAILABLE.value,
+                "vendorId": None,
+                "vendorErrorCode" : None,
+            },
+        ]
 
-        time.sleep(30)
         outcome = response.json()
+
+        assert outcome[0].pop("timestamp") is not None
+
+        assert outcome[1].pop("timestamp") is not None
 
         assert outcome == expected
 
