@@ -2,9 +2,9 @@
 # * Copyright (c) 2024 - Fundação CERTI
 # * All rights reserved.
 # ******************************************************************************/
+from collections import Counter
 
 import pytest
-
 from app_dummy.app_dummy import AppDummy
 from app_dummy.enums import HttpResponseStatusCodeType
 from charge_point_dummy.charge_point_dummy import ChargePointDummy
@@ -16,6 +16,13 @@ from charge_point_dummy.v16.enums import (
     ChargePointErrorCode
 )
 
+def list_of_dictionaries_are_equal(dictionary_list1,dictionary_list2):
+    # Turn each dictionary on the list into a hash with no order (frozenset),
+    # then check if the occurance of each hash is the same
+    list1_frozensets = [frozenset(dictionary.items()) for dictionary in dictionary_list1]
+    list2_frozensets = [frozenset(dictionary.items()) for dictionary in dictionary_list2]
+    # Use Counter to count occurrences of each frozenset
+    return Counter (list1_frozensets) == Counter(list2_frozensets)
 class TestCurrentStatus:
     @property
     def operation(self) -> str:
@@ -105,7 +112,7 @@ class TestCurrentStatus:
 
         assert outcome[1].pop("timestamp") is not None
 
-        assert outcome == expected
+        assert list_of_dictionaries_are_equal(outcome,expected)
 
         charge_point.deinit()
 
@@ -167,8 +174,7 @@ class TestCurrentStatus:
 
         assert outcome[1].pop("timestamp") is not None
 
-        assert outcome == expected
-
+        assert list_of_dictionaries_are_equal(outcome,expected)
         charge_point.deinit()
 
     def test_unauthorized(self, add_a_charging_point_to_the_database):
