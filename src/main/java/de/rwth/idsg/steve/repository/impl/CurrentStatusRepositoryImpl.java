@@ -1,6 +1,6 @@
 /*
  * SteVe - SteckdosenVerwaltung - https://github.com/steve-community/steve
- * Copyright (C) 2024 FundaÃ§Ã£o CERTI
+ * Copyright (C) 2024 Fundação CERTI
  * All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
