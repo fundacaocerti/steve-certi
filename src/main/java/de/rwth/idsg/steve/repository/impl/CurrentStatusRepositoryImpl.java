@@ -44,6 +44,7 @@ public class CurrentStatusRepositoryImpl implements CurrentStatusRepository {
         selectQuery.addFrom(CONNECTOR_STATUS);
 
         selectQuery.addJoin(CONNECTOR, CONNECTOR_STATUS.CONNECTOR_PK.eq(CONNECTOR.CONNECTOR_PK));
+        selectQuery.addOrderBy(CONNECTOR_STATUS.STATUS_TIMESTAMP.desc());
 
         selectQuery.addSelect(
                 CONNECTOR.CONNECTOR_ID,
@@ -54,6 +55,7 @@ public class CurrentStatusRepositoryImpl implements CurrentStatusRepository {
                 CONNECTOR_STATUS.VENDOR_ERROR_CODE,
                 CONNECTOR_STATUS.VENDOR_ID
         );
+        selectQuery.addDistinctOn​(CONNECTOR.CONNECTOR_ID);
 
 
         if (form.isChargeBoxIdSet()) {
