@@ -45,13 +45,13 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'juca-ci', keyFileVariable: 'SSH_KEY')]) {
                     sh '''
-                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "echo 'This is a sample text file' > xablau"
-                    '''
-                    sh '''
                         rsync -Pav -e "ssh -i $SSH_KEY" ./ ${SSH_USER}@${SSH_HOST}:~/steve-certi-deploy
                     '''
                     sh '''
-                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "docker compose up"
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "docker compose -f ~/steve-certi-deploy/docker-compose.yml down"
+                    '''
+                    sh '''
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "docker compose -f ~/steve-certi-deploy/docker-compose.yml up -d --build"
                     '''
                 }
             }
