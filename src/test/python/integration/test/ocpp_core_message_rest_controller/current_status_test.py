@@ -5,11 +5,11 @@
 from collections import Counter
 
 import pytest
-from app_dummy.app_dummy import AppDummy
-from app_dummy.enums import HttpResponseStatusCodeType
-from charge_point_dummy.charge_point_dummy import ChargePointDummy
-from db_helper.db_helper import DatabaseHelper
-from charge_point_dummy.v16.enums import (
+from app_dummy import AppDummy
+from enums import HttpResponseStatusCodeType
+from charge_point_dummy import ChargePointDummy
+from db_helper import DatabaseHelper
+from v16.enums import (
     Action,
     AvailabilityStatus,
     ChargePointStatus,
