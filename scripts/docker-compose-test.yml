@@ -15,8 +15,6 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile.db
-    ports:
-      - 3306:3306
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_DATABASE: stevedb
@@ -29,7 +27,4 @@ services:
       dockerfile: docker/Dockerfile.app
     volumes:
       - ../:/code
-    ports:
-      - "8180:8180"
-      - "8443:8443"
     entrypoint: /code/scripts/test-entrypoint.sh

@@ -27,7 +27,9 @@ def main() -> None:
 
     cp_dummy.init()
 
-    cp_dummy.change_availability_req()
+    ##
+    # FIXME Replace this comment with the OCPP message to be tested
+    # example: cp_dummy.change_availability_req()
 
     cp_dummy.deinit()
 

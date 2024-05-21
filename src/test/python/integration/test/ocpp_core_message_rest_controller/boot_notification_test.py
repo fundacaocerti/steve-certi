@@ -5,10 +5,10 @@
 
 import pytest
 
-from app_dummy.app_dummy import AppDummy
-from app_dummy.enums import HttpResponseStatusCodeType
-from charge_point_dummy.charge_point_dummy import ChargePointDummy
-from db_helper.db_helper import DatabaseHelper
+from app_dummy import AppDummy
+from enums import HttpResponseStatusCodeType
+from charge_point_dummy import ChargePointDummy
+from db_helper import DatabaseHelper
 
 class TestBootNotification:
     @property
