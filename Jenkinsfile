@@ -48,8 +48,8 @@ pipeline {
                         rsync -Pav -e "ssh -i $SSH_KEY" ./ ${SSH_USER}@${SSH_HOST}:~/steve-certi-deploy
                     '''
                    sh '''
-                        echo "$TAG_NAME"
-                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "echo $TAG_NAME > ~/steve-certi-deploy/src/main/resources/webapp/static/text/certi-version.txt"
+                        deployment_footer="CERTI Build:$TAG_NAME"
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "echo $deployment_footer > ~/steve-certi-deploy/src/main/resources/webapp/static/text/certi-version.txt"
                     '''
 
                     sh '''
