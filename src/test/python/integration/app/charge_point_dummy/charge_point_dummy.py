@@ -6,21 +6,21 @@
 import time
 import uuid
 
-from charge_point_dummy.v16.payload import (
+from v16.payload import (
     BootNotificationPayload,
     StatusNotificationPayload,
     HeartbeatPayload,
     ChangeAvailabilityPayload
 )
 
-from charge_point_dummy.v16.enums import (
+from v16.enums import (
     Action,
     AvailabilityStatus,
     ChargePointStatus,
     ChargePointErrorCode
 )
 
-from charge_point_dummy.protocol.websocket import WebSocketHelper
+from protocol.websocket import WebSocketHelper
 
 class ChargePointDummy:
     def __init__(self, url):

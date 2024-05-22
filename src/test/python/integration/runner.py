@@ -12,7 +12,9 @@ cwd = pathlib.Path.cwd()
 
 sys.path.append(str( cwd.parent ))
 
-sys.path.append(str( cwd / 'app' ))
+sys.path.append(str( cwd / 'app/charge_point_dummy' ))
+sys.path.append(str( cwd / 'app/app_dummy' ))
+sys.path.append(str( cwd / 'app/db_helper' ))
 
 errors = pytest.main(['-vv'])
 
