@@ -47,6 +47,10 @@ pipeline {
                     sh '''
                         rsync -Pav -e "ssh -i $SSH_KEY" ./ ${SSH_USER}@${SSH_HOST}:~/steve-certi-deploy
                     '''
+                   sh '''
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "echo 'CERTI Build - ${env.TAG_NAME}' > ~/steve-certi-deploy/src/main/resources/webapp/static/text/certi-version.txt"
+                    '''
+
                     sh '''
                         ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "docker compose -f ~/steve-certi-deploy/docker-compose.yml down"
                     '''

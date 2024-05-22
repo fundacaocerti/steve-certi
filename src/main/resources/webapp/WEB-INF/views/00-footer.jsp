@@ -18,6 +18,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 --%>
-</div></div>
+</div><center><embed src="${ctxPath}/static/text/certi-version.txt"></center></div>
 </body>
 </html>
