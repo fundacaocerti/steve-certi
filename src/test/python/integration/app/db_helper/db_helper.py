@@ -105,23 +105,55 @@ class DatabaseHelper:
         cursor.execute(query)
         self.conn.commit()
 
-    def create_charging_profile(self):
-        q1 = '''
-             INSERT INTO charging_profile (stack_level, charging_profile_purpose, charging_profile_kind, charging_rate_unit, start_schedule)
-             VALUES (0, 'TxDefaultProfile', 'Recurring', 'A', NOW());
-             '''
-
-        q2 = "SET @charging_profile_pk = LAST_INSERT_ID();"
-
-        q3 = '''
-             INSERT INTO charging_schedule_period (charging_profile_pk, start_period_in_seconds, power_limit)
-             VALUES (@charging_profile_pk, 0, 11000), (@charging_profile_pk, 28800, 6000), (@charging_profile_pk, 72000, 11000);
-             '''
+    def create_daily_default_profile(self):
+        ##
+        # The following data structure describes a daily default profile that
+        # limits the power to 6 kW between 08:00h and 20:00h.
 
         cursor = self.conn.cursor()
 
+        q1 = '''
+             INSERT INTO charging_profile
+                (
+                 stack_level,
+                 charging_profile_purpose,
+                 charging_profile_kind,
+                 recurrency_kind,
+                 charging_rate_unit,
+                 start_schedule,
+                 duration_in_seconds
+                )
+             VALUES
+                (0, 'TxDefaultProfile', 'Recurring', 'Daily', 'W', NOW(), 86400);
+             '''
         cursor.execute(q1)
+
+        q2 = "SET @charging_profile_pk = LAST_INSERT_ID();"
         cursor.execute(q2)
+
+        q3 = '''
+             INSERT INTO charging_schedule_period
+                (
+                 charging_profile_pk,
+                 start_period_in_seconds,
+                 power_limit
+                )
+             VALUES
+                (@charging_profile_pk, 0, 11000),
+                (@charging_profile_pk, 28800, 6000),
+                (@charging_profile_pk, 72000, 11000);
+             '''
         cursor.execute(q3)
+
+        self.conn.commit()
+
+    def delele_all_profiles(self):
+        cursor = self.conn.cursor()
+
+        q1 = "DELETE FROM charging_profile"
+        cursor.execute(q1)
+
+        q2 = "ALTER TABLE charging_profile AUTO_INCREMENT = 1"
+        cursor.execute(q2)
 
         self.conn.commit()
