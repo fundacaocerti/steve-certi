@@ -91,3 +91,24 @@ class DatabaseHelper:
         cursor = self.conn.cursor()
         cursor.execute(query)
         self.conn.commit()
+
+    def create_charging_profile(self):
+        q1 = '''
+             INSERT INTO charging_profile (stack_level, charging_profile_purpose, charging_profile_kind, charging_rate_unit, start_schedule)
+             VALUES (0, 'TxDefaultProfile', 'Recurring', 'A', NOW());
+             '''
+
+        q2 = "SET @charging_profile_pk = LAST_INSERT_ID();"
+
+        q3 = '''
+             INSERT INTO charging_schedule_period (charging_profile_pk, start_period_in_seconds, power_limit)
+             VALUES (@charging_profile_pk, 0, 11000), (@charging_profile_pk, 28800, 6000), (@charging_profile_pk, 72000, 11000);
+             '''
+
+        cursor = self.conn.cursor()
+
+        cursor.execute(q1)
+        cursor.execute(q2)
+        cursor.execute(q3)
+
+        self.conn.commit()
