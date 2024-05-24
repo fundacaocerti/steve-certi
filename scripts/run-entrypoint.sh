@@ -4,5 +4,5 @@
 # * All rights reserved.
 # *******************************************************************************/
 set -e
-/code/scripts/steve-certi-build.sh 
+/code/scripts/steve-certi-build.sh --prod
 /code/scripts/steve-certi-run.sh
