@@ -6,6 +6,7 @@
 import logging
 import mariadb
 import sys
+import json
 
 logger = logging.getLogger('DatabaseHelper')
 
@@ -70,6 +71,18 @@ class DatabaseHelper:
         cursor = self.conn.cursor()
         cursor.execute(query, (charge_box_id,))
         self.conn.commit()
+
+    def get_charging_profile(self, charging_profile_id):
+        query = 'SELECT * FROM charging_profile WHERE charging_profile_pk=(?)'
+
+        cursor = self.conn.cursor()
+        cursor.execute(query, (charging_profile_id,))
+
+        # Fetch the results
+        result = cursor.fetchone()
+
+        # Check if a result was found
+        return result
 
     def delete_all_charge_points(self):
         query = 'DELETE FROM charge_box'
