@@ -42,5 +42,11 @@ public class ChargingProfileQueryForm {
     private RecurrencyKindType recurrencyKind;
     private LocalDateTime validFrom;
     private LocalDateTime validTo;
+    @ToString(callSuper = true)
+    public static class ForApi extends ChargingProfileQueryForm {
 
+        public ForApi () {
+            super();
+        }
+    }
 }
