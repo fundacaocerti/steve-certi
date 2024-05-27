@@ -69,6 +69,13 @@
             </properties>
         </profile>
         <profile>
+            <id>prod-certi</id>
+            <properties>
+                <envName>prod-certi</envName>
+                <skipTests>true</skipTests>
+            </properties>
+        </profile>
+        <profile>
             <id>kubernetes</id>
             <properties>
                 <envName>kubernetes</envName>
