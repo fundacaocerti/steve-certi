@@ -21,7 +21,7 @@ def main() -> None:
 
     logging.config.fileConfig(full_path_name)
 
-    url = "ws://172.18.0.3:8180/steve/websocket/CentralSystemService/CP001"
+    url = "ws://localhost:8180/steve/websocket/CentralSystemService/CP001"
 
     cp_dummy = ChargePointDummy(url)
 
