@@ -61,7 +61,7 @@ public class ChargingProfileController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ApiErrorResponse.class)}
     )
 
-    @GetMapping(value ="/{chargeBoxId}")
+    @GetMapping
     @ResponseBody
     public List<ChargingProfile.Overview> get() {
         ChargingProfileQueryForm.ForApi params = new ChargingProfileQueryForm.ForApi();
@@ -69,7 +69,7 @@ public class ChargingProfileController {
         List<ChargingProfile.Overview> results = ChargingProfileService.getOverview(params);
 
         if (results.isEmpty()) {
-            throw new SteveException.NotFound("Could not find this chargeBoxId");
+            throw new SteveException.NotFound("Could not find charging profiles");
         }
 
         return results;
