@@ -20,6 +20,7 @@ function usage {
     echo -e " -h\t--help\t\tDisplay this information"
     echo -e " -v\t--version\tDisplay the version information"
     echo -e " -V\t--verbose\tActivate compilation with verbose output"
+    echo -e " -p\t--prod\t\tActivate compilation with logs in the web interface"
 }
 
 function clean {
@@ -34,6 +35,12 @@ function version {
     echo -e "Equatorial Project - SteVe (Rest API extension)"
     echo -e "Copyright © 2024 - Fundação CERTI"
     echo -e "All rights reserved."
+}
+
+function prod {
+    cd $ROOT_DIR && ./mvnw clean package -Pprod-certi \
+        -Djdk.tls.client.protocols="TLSv1,TLSv1.1,TLSv1.2" \
+        -Dmaven.plugin.validation=verbose
 }
 
 function verbose {
@@ -70,6 +77,10 @@ while [ $# -gt 0 ]; do
       ;;
     -V | --verbose)
       verbose
+      exit 0
+      ;;
+    -p | --prod)
+      prod
       exit 0
       ;;
     *)
