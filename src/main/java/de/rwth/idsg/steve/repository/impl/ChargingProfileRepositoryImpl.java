@@ -346,6 +346,14 @@ public class ChargingProfileRepositoryImpl implements ChargingProfileRepository 
            .execute();
     }
 
+    public int deleteRest(int chargingProfilePk) {
+        checkProfileUsage(chargingProfilePk);
+
+        return ctx.delete(CHARGING_PROFILE)
+           .where(CHARGING_PROFILE.CHARGING_PROFILE_PK.eq(chargingProfilePk))
+           .execute();
+    }
+
     private void checkProfileUsage(int chargingProfilePk) {
         List<String> r = ctx.select(CONNECTOR.CHARGE_BOX_ID)
                             .from(CONNECTOR_CHARGING_PROFILE)
