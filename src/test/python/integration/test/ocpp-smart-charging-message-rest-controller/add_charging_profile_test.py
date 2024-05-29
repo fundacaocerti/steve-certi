@@ -28,27 +28,20 @@ class TestAddChargingProfile:
     def websocket_endpoint(self) -> str:
         return "ws://localhost:8180/steve/websocket/CentralSystemService"
 
+
     @pytest.fixture
-    def add_a_charging_point_to_the_database(self):
+    def clean_database_charging_profiles(self):
         database = DatabaseHelper()
-
-        database.connect()
-
-        charge_box_id = "CP001"
-
-        database.create_charge_point(charge_box_id)
-
-        database.disconnect()
 
         yield
 
         database.connect()
 
-        database.delete_all_charge_points()
+        database.delele_all_profiles()
 
         database.disconnect()
 
-    def test_successful(self):
+    def test_successful(self, clean_database_charging_profiles):
 
         database = DatabaseHelper()
 
@@ -99,7 +92,7 @@ class TestAddChargingProfile:
         assert charging_profiles[0] == new_charging_profile_id
         assert charging_profiles[1] == body['stackLevel']
 
-    def test_successful_txprofile(self):
+    def test_successful_txprofile(self, clean_database_charging_profiles):
         """
         Does not have the properties "validFrom" and "validTo" in body
         Tx_profile are for sessions so they do not possess a validation period
@@ -152,7 +145,7 @@ class TestAddChargingProfile:
         assert charging_profiles[0] == new_charging_profile_id
         assert charging_profiles[1] == body['stackLevel']
 
-    def test_wrong_format_txprofile(self):
+    def test_wrong_format_txprofile(self, clean_database_charging_profiles):
         """
         Tx_profile are for sessions so they do not possess a validation period
         API should return an error
@@ -203,7 +196,7 @@ class TestAddChargingProfile:
 
         assert response.status_code == 400
 
-    def test_unauthorized(self, add_a_charging_point_to_the_database):
+    def test_unauthorized(self, clean_database_charging_profiles):
 
         api_host = f"/{self.base_path}/{self.path}"
 

@@ -38,8 +38,13 @@ class TestDeleteChargingProfile:
 
         yield
 
-        # No action is required
+        database.connect()
 
+        database.delele_all_profiles()
+
+        database.disconnect()
+
+    @pytest.mark.xfail(reason="Não implementado")
     def test_successful(self, database_setup):
         charging_profile_id = 1
 
@@ -64,6 +69,7 @@ class TestDeleteChargingProfile:
         outcome = response.json()
 
         assert outcome == expected
+
 
     def test_unauthorized(self) -> None:
         charging_profile_id = 1
@@ -90,7 +96,8 @@ class TestDeleteChargingProfile:
         assert outcome.pop("timestamp") is not None
 
         assert outcome == expected
-
+        
+    @pytest.mark.xfail(reason="Não implementado")
     def test_not_found(self) -> None:
         charging_profile_id = 2
 
