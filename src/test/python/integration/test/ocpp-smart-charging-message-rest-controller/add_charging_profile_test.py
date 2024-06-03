@@ -18,7 +18,7 @@ class TestAddChargingProfile:
 
     @property
     def base_path(self) -> str:
-        return "/steve/api/v0/smartCharging"
+        return "steve/api/v0/smartCharging"
 
     @property
     def path(self) -> str:
@@ -28,12 +28,13 @@ class TestAddChargingProfile:
     def websocket_endpoint(self) -> str:
         return "ws://localhost:8180/steve/websocket/CentralSystemService"
 
-
     @pytest.fixture
-    def clean_database_charging_profiles(self):
-        database = DatabaseHelper()
+    def database_setup(self) -> None:
+        # No action needed
 
         yield
+
+        database = DatabaseHelper()
 
         database.connect()
 
@@ -41,12 +42,7 @@ class TestAddChargingProfile:
 
         database.disconnect()
 
-    def test_successful(self, clean_database_charging_profiles):
-
-        database = DatabaseHelper()
-
-        database.connect()
-
+    def test_successful(self, database_setup):
         api_host = f"/{self.base_path}/{self.path}"
 
         app = AppDummy(self.operation, api_host)
@@ -85,23 +81,24 @@ class TestAddChargingProfile:
         app.payload = body
 
         response = app.request()
-        new_charging_profile_id = response.json()['chargingProfileId']
-        assert response.status_code == HttpResponseStatusCodeType.CREATED
-        assert new_charging_profile_id
-        charging_profiles = database.get_charging_profile(new_charging_profile_id)
-        assert charging_profiles[0] == new_charging_profile_id
-        assert charging_profiles[1] == body['stackLevel']
 
-    def test_successful_txprofile(self, clean_database_charging_profiles):
+        assert response.status_code == HttpResponseStatusCodeType.CREATED
+
+        assert response.headers["Content-Type"] == "application/json"
+
+        expected = {
+            "chargingProfileId" : 1,
+        }
+
+        outcome = response.json()
+
+        assert outcome == expected
+
+    def test_successful_txprofile(self, database_setup):
         """
         Does not have the properties "validFrom" and "validTo" in body
         Tx_profile are for sessions so they do not possess a validation period
         """
-
-        database = DatabaseHelper()
-
-        database.connect()
-
         api_host = f"/{self.base_path}/{self.path}"
 
         app = AppDummy(self.operation, api_host)
@@ -138,23 +135,24 @@ class TestAddChargingProfile:
         app.payload = body
 
         response = app.request()
-        new_charging_profile_id = response.json()['chargingProfileId']
-        assert response.status_code == HttpResponseStatusCodeType.CREATED
-        assert new_charging_profile_id
-        charging_profiles = database.get_charging_profile(new_charging_profile_id)
-        assert charging_profiles[0] == new_charging_profile_id
-        assert charging_profiles[1] == body['stackLevel']
 
-    def test_wrong_format_txprofile(self, clean_database_charging_profiles):
+        assert response.status_code == HttpResponseStatusCodeType.CREATED
+
+        assert response.headers["Content-Type"] == "application/json"
+
+        expected = {
+            "chargingProfileId" : 1,
+        }
+
+        outcome = response.json()
+
+        assert outcome == expected
+
+    def test_wrong_format_txprofile(self):
         """
         Tx_profile are for sessions so they do not possess a validation period
         API should return an error
         """
-
-        database = DatabaseHelper()
-
-        database.connect()
-
         api_host = f"/{self.base_path}/{self.path}"
 
         app = AppDummy(self.operation, api_host)
@@ -194,10 +192,22 @@ class TestAddChargingProfile:
 
         response = app.request()
 
-        assert response.status_code == 400
+        assert response.headers["Content-Type"] == "application/json"
 
-    def test_unauthorized(self, clean_database_charging_profiles):
+        expected = {
+            "error": "Bad Request",
+            "message" : "Error understanding the request",
+            "path": f"http://localhost:8180/{self.base_path}/{self.path}",
+            "status": HttpResponseStatusCodeType.BAD_REQUEST
+        }
 
+        outcome = response.json()
+
+        assert outcome.pop("timestamp") is not None
+
+        assert outcome == expected
+
+    def test_unauthorized(self):
         api_host = f"/{self.base_path}/{self.path}"
 
         app = AppDummy(self.operation, api_host)
@@ -206,5 +216,17 @@ class TestAddChargingProfile:
 
         response = app.request()
 
-        assert response.status_code == HttpResponseStatusCodeType.UNAUTHORIZED
+        assert response.headers["Content-Type"] == "application/json"
 
+        expected = {
+            "error": "Unauthorized",
+            "message": "Full authentication is required to access this resource",
+            "path": f"http://localhost:8180/{self.base_path}/{self.path}",
+            "status": HttpResponseStatusCodeType.UNAUTHORIZED
+        }
+
+        outcome = response.json()
+
+        assert outcome.pop("timestamp") is not None
+
+        assert outcome == expected
