@@ -4,7 +4,7 @@
 # ******************************************************************************/
 
 import pytest
-import time
+
 from app_dummy import AppDummy
 from enums import HttpResponseStatusCodeType
 from db_helper import DatabaseHelper
@@ -22,32 +22,16 @@ class TestDeleteChargingProfile:
     def path(self) -> str:
         return "ChargingProfile"
 
-    @pytest.fixture
-    def database_setup(self) -> None:
+    def test_successful(self):
         database = DatabaseHelper()
 
         database.connect()
-
-        database.delete_all_profiles()
 
         database.create_daily_default_profile()
 
-        database.disconnect()
-
-        yield
-
-        database.connect()
-
-        database.delete_all_profiles()
-
-        database.disconnect()
-
-    def test_successful(self, database_setup):
-        database = DatabaseHelper()
-        database.connect()
         charging_profile = database.get_any_charging_profile()
+
         charging_profile_id = charging_profile[0]
-        database.disconnect()
 
         api_host = f"/{self.base_path}/{self.path}/{charging_profile_id}"
 
@@ -71,6 +55,9 @@ class TestDeleteChargingProfile:
 
         assert outcome == expected
 
+        database.delete_all_profiles()
+
+        database.disconnect()
 
     def test_unauthorized(self) -> None:
         charging_profile_id = 1
@@ -97,7 +84,7 @@ class TestDeleteChargingProfile:
         assert outcome.pop("timestamp") is not None
 
         assert outcome == expected
-        
+
     def test_not_found(self) -> None:
         charging_profile_id = 0
 
