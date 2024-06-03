@@ -90,21 +90,20 @@ public class ChargingProfileController {
         return response;
     }
 
-
     @DeleteMapping(value ="/{chargingProfileId}")
     @ResponseBody
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Map<String, Object>> delete(@PathVariable("chargingProfileId") Integer chargingProfileId) {
+    public Map<String, Object> delete(@PathVariable("chargingProfileId") Integer chargingProfileId) {
+        log.debug("Delete request for chargingProfilePk: {}", chargingProfileId);
 
-        int numberOfDeletions = ChargingProfileService.delete(chargingProfileId);
+        if (ChargingProfileService.delete(chargingProfileId) == 0) {
+            throw new SteveException.NotFound("Could not find this chargingProfileId");
+        }
 
         Map<String, Object> response = new HashMap<>();
-        if (numberOfDeletions > 0) {
-            response.put("status", "OK");
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } else {
-            response.put("status", "Resource Not Found");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
+
+        response.put("status", "OK");
+
+        log.debug("Delete response: {}", response);
+        return response;
     }
 }
