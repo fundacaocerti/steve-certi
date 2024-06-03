@@ -43,5 +43,9 @@ public class ChargingProfileService {
     public int add(ChargingProfileForm form) {
         return ChargingProfileRepository.add(form);
     }
+
+    public int delete(Integer chargingProfilePk) {
+        return ChargingProfileRepository.deleteRest(chargingProfilePk);
+    }
     
 }

@@ -12,7 +12,7 @@ from db_helper import DatabaseHelper
 class TestDeleteChargingProfile:
     @property
     def operation(self) -> str:
-        return "POST"
+        return "DELETE"
 
     @property
     def base_path(self) -> str:
@@ -20,33 +20,18 @@ class TestDeleteChargingProfile:
 
     @property
     def path(self) -> str:
-        return "deleteChargingProfile"
+        return "ChargingProfile"
 
-    @property
-    def websocket_endpoint(self) -> str:
-        return "ws://localhost:8180/steve/websocket/CentralSystemService"
-
-    @pytest.fixture
-    def database_setup(self) -> None:
+    def test_successful(self):
         database = DatabaseHelper()
 
         database.connect()
 
         database.create_daily_default_profile()
 
-        database.disconnect()
+        charging_profile = database.get_any_charging_profile()
 
-        yield
-
-        database.connect()
-
-        database.delele_all_profiles()
-
-        database.disconnect()
-
-    @pytest.mark.xfail(reason="Não implementado")
-    def test_successful(self, database_setup):
-        charging_profile_id = 1
+        charging_profile_id = charging_profile[0]
 
         api_host = f"/{self.base_path}/{self.path}/{charging_profile_id}"
 
@@ -70,6 +55,9 @@ class TestDeleteChargingProfile:
 
         assert outcome == expected
 
+        database.delete_all_profiles()
+
+        database.disconnect()
 
     def test_unauthorized(self) -> None:
         charging_profile_id = 1
@@ -96,10 +84,9 @@ class TestDeleteChargingProfile:
         assert outcome.pop("timestamp") is not None
 
         assert outcome == expected
-        
-    @pytest.mark.xfail(reason="Não implementado")
+
     def test_not_found(self) -> None:
-        charging_profile_id = 2
+        charging_profile_id = 0
 
         api_host = f"/{self.base_path}/{self.path}/{charging_profile_id}"
 
@@ -114,14 +101,9 @@ class TestDeleteChargingProfile:
         assert response.headers["Content-Type"] == "application/json"
 
         expected = {
-            "error": "Not Found",
-            "message": "Could not find this chargingProfileId",
-            "path": f"http://localhost:8180/{self.base_path}/{self.path}/{charging_profile_id}",
-            "status": HttpResponseStatusCodeType.NOT_FOUND
+            "status": "Resource Not Found"
         }
 
         outcome = response.json()
-
-        assert outcome.pop("timestamp") is not None
 
         assert outcome == expected

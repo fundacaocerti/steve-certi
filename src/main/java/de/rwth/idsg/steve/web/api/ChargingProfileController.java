@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import de.rwth.idsg.steve.web.dto.ChargingProfileForm;
+import org.springframework.http.ResponseEntity;
 
 
 import java.util.HashMap;
@@ -86,5 +88,23 @@ public class ChargingProfileController {
 
         // Return the response map
         return response;
+    }
+
+
+    @DeleteMapping(value ="/{chargingProfileId}")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable("chargingProfileId") Integer chargingProfileId) {
+
+        int numberOfDeletions = ChargingProfileService.delete(chargingProfileId);
+
+        Map<String, Object> response = new HashMap<>();
+        if (numberOfDeletions > 0) {
+            response.put("status", "OK");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            response.put("status", "Resource Not Found");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
     }
 }

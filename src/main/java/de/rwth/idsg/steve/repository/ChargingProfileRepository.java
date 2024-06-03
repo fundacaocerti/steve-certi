@@ -27,6 +27,7 @@ import ocpp.cp._2015._10.ChargingProfilePurposeType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+
 import java.util.List;
 
 /**
@@ -61,6 +62,8 @@ public interface ChargingProfileRepository {
     ChargingProfile.Details getDetails(int chargingProfilePk);
 
     int add(ChargingProfileForm form);
+
+    int deleteRest(int chargingProfilePk);
 
     void update(ChargingProfileForm form);
 

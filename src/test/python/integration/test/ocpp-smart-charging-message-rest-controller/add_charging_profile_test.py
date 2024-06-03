@@ -37,7 +37,7 @@ class TestAddChargingProfile:
 
         database.connect()
 
-        database.delele_all_profiles()
+        database.delete_all_profiles()
 
         database.disconnect()
 

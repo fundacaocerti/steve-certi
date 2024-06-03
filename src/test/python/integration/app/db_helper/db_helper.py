@@ -84,6 +84,18 @@ class DatabaseHelper:
         # Check if a result was found
         return result
 
+    def get_any_charging_profile(self):
+        query = 'SELECT * FROM charging_profile'
+
+        cursor = self.conn.cursor()
+        cursor.execute(query)
+
+        # Fetch the results
+        result = cursor.fetchone()
+
+        # Check if a result was found
+        return result
+
     def delete_all_charge_points(self):
         query = 'DELETE FROM charge_box'
 
@@ -147,7 +159,7 @@ class DatabaseHelper:
 
         self.conn.commit()
 
-    def delele_all_profiles(self):
+    def delete_all_profiles(self):
         cursor = self.conn.cursor()
 
         q1 = "DELETE FROM charging_profile"
