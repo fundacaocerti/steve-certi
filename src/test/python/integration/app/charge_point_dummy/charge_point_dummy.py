@@ -3,24 +3,29 @@
 # * All rights reserved.
 # ******************************************************************************/
 
+import asyncio
+import logging
 import time
 import uuid
+import websocket
 
 from v16.payload import (
     BootNotificationPayload,
     StatusNotificationPayload,
     HeartbeatPayload,
-    ChangeAvailabilityPayload
+    ClearChargingProfilePayload
 )
 
 from v16.enums import (
     Action,
-    AvailabilityStatus,
     ChargePointStatus,
-    ChargePointErrorCode
+    ChargePointErrorCode,
+    ClearChargingProfileStatus
 )
 
 from protocol.websocket import WebSocketHelper
+
+logger = logging.getLogger('ChargePointDummy')
 
 class ChargePointDummy:
     def __init__(self, url):
@@ -201,17 +206,28 @@ class ChargePointDummy:
     ##
     # Direction: Server-to-Client
 
-    def change_availability_req(self) -> None:
-        '''
-        This method is responsible for waiting for the arrival of the ChangeAvailability
-        call message and returning the call_result message with the status of accepted.
-        '''
-        call = self.__ws.receive()
+    async def clear_charging_profile_conf(self, status) -> None:
+        try:
+            await asyncio.wait_for(
+                self.clear_charging_profile_conf_internal(status), timeout = 4
+            )
 
-        uuid = self.get_uuid_from_call_message(call)
+        except asyncio.TimeoutError as e:
+            logger.error(e)
 
-        payload = ChangeAvailabilityPayload(AvailabilityStatus.ACCEPTED.value)
+    async def clear_charging_profile_conf_internal(self, status) -> None:
+        self.__ws.settimeout(3)
 
-        call_result = self.create_call_result_message(uuid, payload.to_json())
+        try:
+            call = self.__ws.receive()
 
-        self.__ws.send(call_result)
+            uuid = self.get_uuid_from_call_message(call)
+
+            payload = ClearChargingProfilePayload(status)
+
+            call_result = self.create_call_result_message(uuid, payload.to_json())
+
+            self.__ws.send(call_result)
+
+        except websocket._exceptions.WebSocketTimeoutException as e:
+            logger.error(e)
