@@ -13,7 +13,8 @@ from dataclasses import (
 from v16.enums import (
     AvailabilityStatus,
     ChargePointErrorCode,
-    ChargePointStatus
+    ChargePointStatus,
+    ClearChargingProfileStatus
 )
 
 from util.string_handling import snake_to_camel
@@ -55,3 +56,7 @@ class HeartbeatPayload(ToJson):
 @dataclass
 class ChangeAvailabilityPayload(ToJson):
     status: AvailabilityStatus
+
+@dataclass
+class ClearChargingProfilePayload(ToJson):
+    status: ClearChargingProfileStatus
