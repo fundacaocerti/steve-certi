@@ -55,6 +55,14 @@ class ChargePointErrorCode(Enum):
     LOCAL_LIST_CONFLICT = 'LocalListConflict'
     NO_ERROR = 'NoError'
 
+class ChargingProfileStatus(Enum):
+    '''
+    Status returned in response to SetChargingProfile.req
+    '''
+    ACCEPTED = 'Accepted'
+    REJECTED = 'Rejected'
+    NOT_SUPPORTED = 'NotSupported'
+
 class ClearChargingProfileStatus(Enum):
     '''
     Status returned in response to ClearChargingProfile.req

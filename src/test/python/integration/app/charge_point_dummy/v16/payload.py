@@ -14,6 +14,7 @@ from v16.enums import (
     AvailabilityStatus,
     ChargePointErrorCode,
     ChargePointStatus,
+    ChargingProfileStatus,
     ClearChargingProfileStatus
 )
 
@@ -56,6 +57,10 @@ class HeartbeatPayload(ToJson):
 @dataclass
 class ChangeAvailabilityPayload(ToJson):
     status: AvailabilityStatus
+
+@dataclass
+class SetChargingProfilePayload(ToJson):
+    status: ChargingProfileStatus
 
 @dataclass
 class ClearChargingProfilePayload(ToJson):
