@@ -54,3 +54,10 @@ class ChargePointErrorCode(Enum):
     INTERNAL_ERROR = 'InternalError'
     LOCAL_LIST_CONFLICT = 'LocalListConflict'
     NO_ERROR = 'NoError'
+
+class ClearChargingProfileStatus(Enum):
+    '''
+    Status returned in response to ClearChargingProfile.req
+    '''
+    ACCEPTED = 'Accepted'
+    UNKNOWN = 'Unknown'

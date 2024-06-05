@@ -8,6 +8,8 @@ import logging
 
 import logging.config
 
+import asyncio
+
 from charge_point_dummy import ChargePointDummy
 
 from pathlib import Path
@@ -29,7 +31,7 @@ def main() -> None:
 
     ##
     # FIXME Replace this comment with the OCPP message to be tested
-    # example: cp_dummy.change_availability_req()
+    # example 1: asyncio.run(cp_dummy.clear_charging_profile_conf())
 
     cp_dummy.deinit()
 

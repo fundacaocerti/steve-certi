@@ -36,3 +36,8 @@ class WebSocketHelper:
         logger.debug("From Central-System {'msg':'%s'}.", msg)
 
         return msg
+
+    def settimeout(self, timeout) -> None:
+        self.__ws.settimeout(timeout)
+
+        logger.debug("Definite time limit")
