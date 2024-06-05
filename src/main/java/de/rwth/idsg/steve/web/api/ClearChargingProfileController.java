@@ -55,9 +55,9 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/api/v0/smartCharging/ChargingProfile", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v0/smartCharging/clearChargingProfile", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-public class ChargingProfileController {
+public class ClearChargingProfileController {
 
     @Autowired
     @Qualifier("ChargePointService16_Client")
@@ -65,10 +65,6 @@ public class ChargingProfileController {
     protected ChargePointService16_Client getClient16() {
         return client16;
     }
-
-    private final ChargingProfileService ChargingProfileService;
-
-    private static final int kNoRemoval = 0;
 
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK"),
@@ -78,47 +74,15 @@ public class ChargingProfileController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ApiErrorResponse.class)}
     )
 
-    @GetMapping
-    @ResponseBody
-    public List<ChargingProfile.Overview> get() {
-        ChargingProfileQueryForm.ForApi params = new ChargingProfileQueryForm.ForApi();
-
-        List<ChargingProfile.Overview> results = ChargingProfileService.getOverview(params);
-
-        if (results.isEmpty()) {
-            throw new SteveException.NotFound("Could not find charging profiles");
-        }
-
-        return results;
-    }
 
     @PostMapping
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, Integer> add(@RequestBody @Valid ChargingProfileForm params) {
-
-        int NewChargingProfilePk = ChargingProfileService.add(params);
-        Map<String, Integer> response = new HashMap<>();
-        response.put("chargingProfileId", NewChargingProfilePk);
-
-        // Return the response map
-        return response;
-    }
-
-    @DeleteMapping(value ="/{chargingProfileId}")
-    @ResponseBody
-    public Map<String, Object> delete(@PathVariable("chargingProfileId") Integer chargingProfileId) {
-        log.debug("Delete request for chargingProfilePk: {}", chargingProfileId);
-
-        if (ChargingProfileService.delete(chargingProfileId) == kNoRemoval) {
-            throw new SteveException.NotFound("Could not find this chargingProfileId");
-        }
-
+    public Map<String, Object> add(@Valid ClearChargingProfileParams params) {
+        getClient16().clearChargingProfile(params);
         Map<String, Object> response = new HashMap<>();
 
         response.put("status", "OK");
-
-        log.debug("Delete response: {}", response);
         return response;
     }
 }
