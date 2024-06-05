@@ -55,6 +55,8 @@ public class ChargingProfileController {
 
     private final ChargingProfileService ChargingProfileService;
 
+    private static final int kNoRemoval = 0;
+
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK"),
         @ApiResponse(code = 400, message = "Bad Request", response = ApiErrorResponse.class),
@@ -95,7 +97,7 @@ public class ChargingProfileController {
     public Map<String, Object> delete(@PathVariable("chargingProfileId") Integer chargingProfileId) {
         log.debug("Delete request for chargingProfilePk: {}", chargingProfileId);
 
-        if (ChargingProfileService.delete(chargingProfileId) == 0) {
+        if (ChargingProfileService.delete(chargingProfileId) == kNoRemoval) {
             throw new SteveException.NotFound("Could not find this chargingProfileId");
         }
 
