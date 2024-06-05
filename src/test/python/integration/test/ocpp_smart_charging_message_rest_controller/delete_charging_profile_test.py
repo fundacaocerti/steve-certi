@@ -22,16 +22,26 @@ class TestDeleteChargingProfile:
     def path(self) -> str:
         return "ChargingProfile"
 
-    def test_successful(self):
+    @pytest.fixture
+    def database_setup(self) -> None:
         database = DatabaseHelper()
 
         database.connect()
 
         database.create_daily_default_profile()
 
-        charging_profile = database.get_any_charging_profile()
+        database.disconnect()
 
-        charging_profile_id = charging_profile[0]
+        yield
+
+        database.connect()
+
+        database.delete_all_profiles()
+
+        database.disconnect()
+
+    def test_successful(self, database_setup):
+        charging_profile_id = 1
 
         api_host = f"/{self.base_path}/{self.path}/{charging_profile_id}"
 
@@ -55,9 +65,6 @@ class TestDeleteChargingProfile:
 
         assert outcome == expected
 
-        database.delete_all_profiles()
-
-        database.disconnect()
 
     def test_unauthorized(self) -> None:
         charging_profile_id = 1
@@ -86,7 +93,7 @@ class TestDeleteChargingProfile:
         assert outcome == expected
 
     def test_not_found(self) -> None:
-        charging_profile_id = 0
+        charging_profile_id = 2
 
         api_host = f"/{self.base_path}/{self.path}/{charging_profile_id}"
 
@@ -101,9 +108,14 @@ class TestDeleteChargingProfile:
         assert response.headers["Content-Type"] == "application/json"
 
         expected = {
-            "status": "Resource Not Found"
+            "error": "Not Found",
+            "message": "Could not find this chargingProfileId",
+            "path": f"http://localhost:8180/{self.base_path}/{self.path}/{charging_profile_id}",
+            "status": HttpResponseStatusCodeType.NOT_FOUND
         }
 
         outcome = response.json()
+
+        assert outcome.pop("timestamp") is not None
 
         assert outcome == expected

@@ -55,6 +55,8 @@ public class ChargingProfileController {
 
     private final ChargingProfileService ChargingProfileService;
 
+    private static final int kNoRemoval = 0;
+
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK"),
         @ApiResponse(code = 400, message = "Bad Request", response = ApiErrorResponse.class),
@@ -90,21 +92,20 @@ public class ChargingProfileController {
         return response;
     }
 
-
     @DeleteMapping(value ="/{chargingProfileId}")
     @ResponseBody
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Map<String, Object>> delete(@PathVariable("chargingProfileId") Integer chargingProfileId) {
+    public Map<String, Object> delete(@PathVariable("chargingProfileId") Integer chargingProfileId) {
+        log.debug("Delete request for chargingProfilePk: {}", chargingProfileId);
 
-        int numberOfDeletions = ChargingProfileService.delete(chargingProfileId);
+        if (ChargingProfileService.delete(chargingProfileId) == kNoRemoval) {
+            throw new SteveException.NotFound("Could not find this chargingProfileId");
+        }
 
         Map<String, Object> response = new HashMap<>();
-        if (numberOfDeletions > 0) {
-            response.put("status", "OK");
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } else {
-            response.put("status", "Resource Not Found");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
+
+        response.put("status", "OK");
+
+        log.debug("Delete response: {}", response);
+        return response;
     }
 }
