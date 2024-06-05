@@ -165,12 +165,7 @@ class DatabaseHelper:
         q1 = "DELETE FROM charging_profile"
         cursor.execute(q1)
 
-        self.conn.commit()
-
-    def re_start_the_automatic_increment_in_the_charging_profile_table(self):
-        cursor = self.conn.cursor()
-
-        query = "ALTER TABLE charging_profile AUTO_INCREMENT = 1"
-        cursor.execute(query)
+        q2 = "ALTER TABLE charging_profile AUTO_INCREMENT = 1"
+        cursor.execute(q2)
 
         self.conn.commit()

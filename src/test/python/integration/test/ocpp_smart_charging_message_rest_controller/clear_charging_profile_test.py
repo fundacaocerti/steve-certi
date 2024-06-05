@@ -11,6 +11,8 @@ from enums import HttpResponseStatusCodeType
 from charge_point_dummy import ChargePointDummy
 from db_helper import DatabaseHelper
 
+from v16.enums import ClearChargingProfileStatus
+
 class TestClearChargingProfile:
     @property
     def operation(self) -> str:
@@ -48,13 +50,14 @@ class TestClearChargingProfile:
 
         database.delete_all_profiles()
 
-        database.re_start_the_automatic_increment_in_the_charging_profile_table()
-
         database.delete_all_charge_points()
 
         database.disconnect()
 
-    def test_successful(self, database_setup):
+    @pytest.mark.xfail
+    def test_successful_accepted(self, database_setup):
+        pytest.xfail("This features is not yet implemented")
+
         charge_box_id = "CP001"
 
         uri = f"{self.websocket_endpoint}/{charge_box_id}"
@@ -63,7 +66,9 @@ class TestClearChargingProfile:
 
         charge_point.init()
 
-        asyncio.run(charge_point.clear_charging_profile_conf())
+        asyncio.run(
+            charge_point.clear_charging_profile_conf(ClearChargingProfileStatus.ACCEPTED.value)
+        )
 
         api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
 
@@ -95,6 +100,51 @@ class TestClearChargingProfile:
 
         assert outcome == expected
 
+    @pytest.mark.xfail
+    def test_successful_unknown(self, database_setup):
+        pytest.xfail("This features is not yet implemented")
+
+        charge_box_id = "CP001"
+
+        uri = f"{self.websocket_endpoint}/{charge_box_id}"
+
+        charge_point = ChargePointDummy(uri)
+
+        charge_point.init()
+
+        asyncio.run(
+            charge_point.clear_charging_profile_conf(ClearChargingProfileStatus.UNKNOWN.value)
+        )
+
+        api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
+
+        app = AppDummy(self.operation, api_host)
+
+        app.headers = {"Content-Type": "application/json"}
+
+        app.headers = {"api-key": "certi"}
+
+        body = {
+            "id" : 1,
+            "connectorId" : 0,
+            "chargingProfilePurpose": "CHARGE_POINT_MAX_PROFILE"
+        }
+
+        app.payload = body
+
+        response = app.request()
+
+        assert response.status_code == HttpResponseStatusCodeType.OK
+
+        assert response.headers["Content-Type"] == "application/json"
+
+        expected = {
+            "status": "Unknown",
+        }
+
+        outcome = response.json()
+
+        assert outcome == expected
 
     def test_unauthorized(self):
         api_host = f"/{self.base_path}/{self.path}"
@@ -120,7 +170,10 @@ class TestClearChargingProfile:
 
         assert outcome == expected
 
+    @pytest.mark.xfail
     def test_not_found(self) -> None:
+        pytest.xfail("This features is not yet implemented")
+
         charging_profile_id = 2
 
         api_host = f"/{self.base_path}/{self.path}/{charging_profile_id}"

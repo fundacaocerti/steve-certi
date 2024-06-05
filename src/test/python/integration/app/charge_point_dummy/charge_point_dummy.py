@@ -206,14 +206,16 @@ class ChargePointDummy:
     ##
     # Direction: Server-to-Client
 
-    async def clear_charging_profile_conf(self) -> None:
+    async def clear_charging_profile_conf(self, status) -> None:
         try:
-            await asyncio.wait_for(self.clear_charging_profile_conf_internal(), timeout = 4)
+            await asyncio.wait_for(
+                self.clear_charging_profile_conf_internal(status), timeout = 4
+            )
 
         except asyncio.TimeoutError as e:
             logger.error(e)
 
-    async def clear_charging_profile_conf_internal(self) -> None:
+    async def clear_charging_profile_conf_internal(self, status) -> None:
         self.__ws.settimeout(3)
 
         try:
@@ -221,7 +223,7 @@ class ChargePointDummy:
 
             uuid = self.get_uuid_from_call_message(call)
 
-            payload = ClearChargingProfilePayload(ClearChargingProfileStatus.ACCEPTED.value)
+            payload = ClearChargingProfilePayload(status)
 
             call_result = self.create_call_result_message(uuid, payload.to_json())
 

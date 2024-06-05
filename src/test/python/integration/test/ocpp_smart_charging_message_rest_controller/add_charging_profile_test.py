@@ -40,8 +40,6 @@ class TestAddChargingProfile:
 
         database.delete_all_profiles()
 
-        database.re_start_the_automatic_increment_in_the_charging_profile_table()
-
         database.disconnect()
 
     def test_successful(self, database_setup):
