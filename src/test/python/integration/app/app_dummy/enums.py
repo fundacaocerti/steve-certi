@@ -13,6 +13,7 @@ class HttpResponseStatusCodeType(Enum):
     NOT_FOUND = 404
     UNPROCESSABLE_ENTITY = 422
     INTERNAL_SERVER_ERROR = 500
+    ACCEPTED = 202
 
     def __get__(self, instance, owner):
         return self.value
