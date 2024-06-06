@@ -17,6 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package de.rwth.idsg.steve.web.api;
+
+import ocpp.cp._2015._10.ChargingProfilePurposeType;
+import ocpp.cs._2015._10.RegistrationStatus;
+import java.util.Optional;
+import de.rwth.idsg.steve.repository.dto.ChargePointSelect;
 import de.rwth.idsg.steve.SteveException;
 import de.rwth.idsg.steve.repository.dto.ChargingProfile;
 import de.rwth.idsg.steve.service.ChargingProfileService;
@@ -34,6 +39,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import de.rwth.idsg.steve.service.ChargePointHelperService;
+import de.rwth.idsg.steve.ocpp.OcppTransport;
+import de.rwth.idsg.steve.ocpp.OcppProtocol;
 import de.rwth.idsg.steve.service.ChargePointService16_Client;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 import de.rwth.idsg.steve.web.dto.ChargingProfileForm;
 import org.springframework.http.ResponseEntity;
 import de.rwth.idsg.steve.web.dto.ocpp.ClearChargingProfileParams;
+import de.rwth.idsg.steve.web.dto.ocpp.ClearChargingProfileParamsRest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -53,18 +62,26 @@ import java.util.Map;
 import javax.validation.Valid;
 import java.util.List;
 
+import java.util.ArrayList;
+
 @Slf4j
 @RestController
 @RequestMapping(value = "/api/v0/smartCharging/clearChargingProfile", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class ClearChargingProfileController {
 
+    @Autowired private ChargePointHelperService chargePointHelperService;
+    protected ChargePointHelperService getHelperService() {
+        return chargePointHelperService;
+    }
     @Autowired
     @Qualifier("ChargePointService16_Client")
     private ChargePointService16_Client client16;
     protected ChargePointService16_Client getClient16() {
         return client16;
     }
+    private final ChargingProfileService ChargingProfileService;
+    
 
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK"),
@@ -75,14 +92,58 @@ public class ClearChargingProfileController {
     )
 
 
-    @PostMapping
+    @PostMapping(value ="/{chargeBoxId}")
     @ResponseBody
-    @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, Object> add(@Valid ClearChargingProfileParams params) {
-        getClient16().clearChargingProfile(params);
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Map<String, Object> add(@PathVariable("chargeBoxId") String chargeBoxId, @RequestBody @Valid ClearChargingProfileParamsRest body_params) {
         Map<String, Object> response = new HashMap<>();
+        if (ChargeBoxExists(chargeBoxId).isEmpty())
+        {
+            throw new SteveException.NotFound("Could not find this chargeBoxId");
+        }
+        if (ChargingProfileIsValid(body_params.getId()) == false)
+        {
+            throw new SteveException.NotFound("Could not find this Charging Profile");
+        }
 
-        response.put("status", "OK");
+        ClearChargingProfileParams params = create_Ocpp16_params_from_REST(chargeBoxId, body_params);
+        getClient16().clearChargingProfile(params);
+        response.put("status", "Accepted");
         return response;
     }
+
+    public ClearChargingProfileParams create_Ocpp16_params_from_REST(String chargeBoxId, ClearChargingProfileParamsRest body_params)
+    {
+        //The char 'J' informs this class that the OCPP Transport utilizes JSON
+        ChargePointSelect chargeBox = new ChargePointSelect(OcppTransport.fromValue("J"), chargeBoxId);
+        Integer chargingProfilePk = body_params.getId();
+        Integer connectorId = body_params.getConnectorId();
+        Integer stackLevel = body_params.getStackLevel();
+        List<ChargePointSelect> chargePointSelectList = new ArrayList<ChargePointSelect>();
+        ClearChargingProfileParams params = new ClearChargingProfileParams();
+        ChargingProfilePurposeType chargingProfilePurpose = body_params.getChargingProfilePurpose();
+
+        chargePointSelectList.add(chargeBox);
+        params.setChargingProfilePk(chargingProfilePk);
+        params.setConnectorId(connectorId);
+        params.setStackLevel(stackLevel);
+        params.setChargePointSelectList(chargePointSelectList);
+        params.setChargingProfilePurpose(chargingProfilePurpose);
+        return params;
+    }
+
+
+    public Optional<RegistrationStatus> ChargeBoxExists(String chargeBoxId)
+    {
+        return getHelperService().getRegistrationStatus(chargeBoxId);
+    }
+
+
+    public boolean ChargingProfileIsValid(int chargingProfilePk)
+    {  
+        ChargingProfile.Details chargingProfileDetails = ChargingProfileService.getDetails(chargingProfilePk);;
+        return (chargingProfileDetails.getProfile() != null);
+    }
+
+    
 }
