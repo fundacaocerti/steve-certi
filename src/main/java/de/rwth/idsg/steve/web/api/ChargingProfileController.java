@@ -45,9 +45,6 @@ import de.rwth.idsg.steve.web.dto.ocpp.ClearChargingProfileParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.Valid;
@@ -58,13 +55,6 @@ import java.util.List;
 @RequestMapping(value = "/api/v0/smartCharging/ChargingProfile", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class ChargingProfileController {
-
-    @Autowired
-    @Qualifier("ChargePointService16_Client")
-    private ChargePointService16_Client client16;
-    protected ChargePointService16_Client getClient16() {
-        return client16;
-    }
 
     private final ChargingProfileService ChargingProfileService;
 
