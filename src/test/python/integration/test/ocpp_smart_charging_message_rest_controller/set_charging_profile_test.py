@@ -97,6 +97,8 @@ class TestSetChargingProfile:
 
         assert outcome == expected
 
+        charge_point.deinit()
+
     @pytest.mark.xfail
     def test_successful_rejected(self, database_setup):
         pytest.xfail("This feature is not yet implemented")
@@ -140,6 +142,8 @@ class TestSetChargingProfile:
 
         assert outcome == expected
 
+        charge_point.deinit()
+
     @pytest.mark.xfail
     def test_successful_not_supported(self, database_setup):
         pytest.xfail("This feature is not yet implemented")
@@ -182,6 +186,8 @@ class TestSetChargingProfile:
         outcome = response.json()
 
         assert outcome == expected
+
+        charge_point.deinit()
 
     def test_unauthorized(self):
         api_host = f"/{self.base_path}/{self.path}"

@@ -100,6 +100,8 @@ class TestClearChargingProfile:
 
         assert outcome == expected
 
+        charge_point.deinit()
+
     @pytest.mark.xfail
     def test_successful_unknown(self, database_setup):
         pytest.xfail("This features is not yet implemented")
@@ -145,6 +147,8 @@ class TestClearChargingProfile:
         outcome = response.json()
 
         assert outcome == expected
+
+        charge_point.deinit()
 
     def test_unauthorized(self):
         api_host = f"/{self.base_path}/{self.path}"
