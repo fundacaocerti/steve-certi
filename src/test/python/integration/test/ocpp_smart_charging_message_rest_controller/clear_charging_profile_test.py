@@ -54,9 +54,7 @@ class TestClearChargingProfile:
 
         database.disconnect()
 
-    @pytest.mark.xfail
     def test_successful_accepted(self, database_setup):
-        pytest.xfail("This features is not yet implemented")
 
         charge_box_id = "CP001"
 
@@ -88,7 +86,7 @@ class TestClearChargingProfile:
 
         response = app.request()
 
-        assert response.status_code == HttpResponseStatusCodeType.OK
+        assert response.status_code == HttpResponseStatusCodeType.ACCEPTED
 
         assert response.headers["Content-Type"] == "application/json"
 
@@ -100,9 +98,7 @@ class TestClearChargingProfile:
 
         assert outcome == expected
 
-    @pytest.mark.xfail
     def test_successful_unknown(self, database_setup):
-        pytest.xfail("This features is not yet implemented")
 
         charge_box_id = "CP001"
 
@@ -134,7 +130,7 @@ class TestClearChargingProfile:
 
         response = app.request()
 
-        assert response.status_code == HttpResponseStatusCodeType.OK
+        assert response.status_code == HttpResponseStatusCodeType.ACCEPTED
 
         assert response.headers["Content-Type"] == "application/json"
 
@@ -170,9 +166,7 @@ class TestClearChargingProfile:
 
         assert outcome == expected
 
-    @pytest.mark.xfail
     def test_not_found(self) -> None:
-        pytest.xfail("This features is not yet implemented")
 
         charging_profile_id = 2
 

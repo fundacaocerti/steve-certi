@@ -12,6 +12,8 @@ import asyncio
 
 from charge_point_dummy import ChargePointDummy
 
+from v16.enums import ClearChargingProfileStatus
+
 from pathlib import Path
 
 def main() -> None:
@@ -31,12 +33,7 @@ def main() -> None:
 
     ##
     # FIXME Replace this comment with the OCPP message to be tested
-    status = {
-    "id": 1,
-    "connectorId": 0,
-    "chargingProfilePurpose": "string",
-    "stackLevel": 0
-    }
+    status = ClearChargingProfileStatus.UNKNOWN.value
     asyncio.run(cp_dummy.clear_charging_profile_conf(status))
 
     cp_dummy.deinit()
