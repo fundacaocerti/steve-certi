@@ -13,7 +13,8 @@ from v16.payload import (
     BootNotificationPayload,
     StatusNotificationPayload,
     HeartbeatPayload,
-    ClearChargingProfilePayload
+    ClearChargingProfilePayload,
+    SetChargingProfilePayload
 )
 
 from v16.enums import (
@@ -206,6 +207,32 @@ class ChargePointDummy:
     ##
     # Direction: Server-to-Client
 
+    async def set_charging_profile_conf(self, status) -> None:
+        try:
+            await asyncio.wait_for(
+                self.set_charging_profile_conf_internal(status), timeout = 4
+            )
+
+        except asyncio.TimeoutError as e:
+            logger.error(e)
+
+    async def set_charging_profile_conf_internal(self, status) -> None:
+        self.__ws.settimeout(3)
+
+        try:
+            call = self.__ws.receive()
+
+            uuid = self.get_uuid_from_call_message(call)
+
+            payload = SetChargingProfilePayload(status)
+
+            call_result = self.create_call_result_message(uuid, payload.to_json())
+
+            self.__ws.send(call_result)
+
+        except websocket._exceptions.WebSocketTimeoutException as e:
+            logger.error(e)
+
     async def clear_charging_profile_conf(self, status) -> None:
         try:
             await asyncio.wait_for(
@@ -231,3 +258,4 @@ class ChargePointDummy:
 
         except websocket._exceptions.WebSocketTimeoutException as e:
             logger.error(e)
+

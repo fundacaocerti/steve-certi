@@ -8,8 +8,6 @@ import logging
 
 import logging.config
 
-import asyncio
-
 from charge_point_dummy import ChargePointDummy
 
 from v16.enums import ClearChargingProfileStatus
