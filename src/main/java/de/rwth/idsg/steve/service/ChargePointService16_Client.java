@@ -40,6 +40,7 @@ import ocpp.cp._2015._10.ChargingProfilePurposeType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import de.rwth.idsg.steve.ocpp.CommunicationTask;
 
 /**
  * @author Sevket Goekay <sevketgokay@gmail.com>
@@ -109,6 +110,10 @@ public class ChargePointService16_Client extends ChargePointService15_Client {
                          .execute(c -> getOcpp16Invoker().clearChargingProfile(c, task));
 
         return taskStore.add(task);
+    }
+
+    public CommunicationTask getTask (int taskId) {
+        return taskStore.get(taskId);
     }
 
     public int getCompositeSchedule(GetCompositeScheduleParams params) {
