@@ -168,7 +168,7 @@ class TestClearChargingProfile:
 
         assert outcome == expected
 
-    def test_not_found(self) -> None:
+    def test_chargebox_not_found(self) -> None:
 
         charging_profile_id = 2
 
@@ -186,7 +186,7 @@ class TestClearChargingProfile:
 
         expected = {
             "error": "Not Found",
-            "message": "Could not find this chargingProfileId",
+            "message": "Could not find this chargeBoxId",
             "path": f"http://localhost:8180/{self.base_path}/{self.path}/{charging_profile_id}",
             "status": HttpResponseStatusCodeType.NOT_FOUND
         }
