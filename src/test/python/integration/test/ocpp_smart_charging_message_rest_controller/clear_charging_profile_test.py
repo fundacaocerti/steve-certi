@@ -54,7 +54,7 @@ class TestClearChargingProfile:
 
         database.disconnect()
 
-    def test_successful_accepted(self, database_setup):
+    def test_successful_createdTask(self, database_setup):
 
         charge_box_id = "CP001"
 
@@ -63,10 +63,6 @@ class TestClearChargingProfile:
         charge_point = ChargePointDummy(uri)
 
         charge_point.init()
-
-        asyncio.run(
-            charge_point.clear_charging_profile_conf(ClearChargingProfileStatus.ACCEPTED.value)
-        )
 
         api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
 
@@ -91,56 +87,14 @@ class TestClearChargingProfile:
         assert response.headers["Content-Type"] == "application/json"
 
         expected = {
-            "status": "Accepted",
+            "taskId": 1
         }
+
 
         outcome = response.json()
 
-        assert outcome == expected
+        assert isinstance(outcome["taskId"], int)
 
-    def test_successful_unknown(self, database_setup):
-
-        charge_box_id = "CP001"
-
-        uri = f"{self.websocket_endpoint}/{charge_box_id}"
-
-        charge_point = ChargePointDummy(uri)
-
-        charge_point.init()
-
-        asyncio.run(
-            charge_point.clear_charging_profile_conf(ClearChargingProfileStatus.UNKNOWN.value)
-        )
-
-        api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
-
-        app = AppDummy(self.operation, api_host)
-
-        app.headers = {"Content-Type": "application/json"}
-
-        app.headers = {"api-key": "certi"}
-
-        body = {
-            "id" : 1,
-            "connectorId" : 0,
-            "chargingProfilePurpose": "CHARGE_POINT_MAX_PROFILE"
-        }
-
-        app.payload = body
-
-        response = app.request()
-
-        assert response.status_code == HttpResponseStatusCodeType.ACCEPTED
-
-        assert response.headers["Content-Type"] == "application/json"
-
-        expected = {
-            "status": "Unknown",
-        }
-
-        outcome = response.json()
-
-        assert outcome == expected
 
         charge_point.deinit()
 
