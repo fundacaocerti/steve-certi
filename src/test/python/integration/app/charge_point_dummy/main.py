@@ -14,6 +14,8 @@ from v16.enums import ClearChargingProfileStatus
 
 from pathlib import Path
 
+import asyncio
+
 def main() -> None:
     current_directory = Path.cwd()
 
