@@ -196,3 +196,41 @@ class TestClearChargingProfile:
         assert outcome.pop("timestamp") is not None
 
         assert outcome == expected
+
+    def test_chargingprofile_not_found(self, database_setup) -> None:
+
+        charging_profile_id = "CP001"
+
+        api_host = f"/{self.base_path}/{self.path}/{charging_profile_id}"
+
+        app = AppDummy(self.operation, api_host)
+
+        app.headers = {"Content-Type":"application/json"}
+
+        app.headers = {"api-key":"certi"}
+
+        body = {
+            "id" : 69,
+            "connectorId" : 0,
+            "chargingProfilePurpose": "CHARGE_POINT_MAX_PROFILE"
+        }
+
+        app.payload = body
+
+        response = app.request()
+
+
+        assert response.headers["Content-Type"] == "application/json"
+
+        expected = {
+            "error": "Not Found",
+            "message": "Could not find this Charging Profile",
+            "path": f"http://localhost:8180/{self.base_path}/{self.path}/{charging_profile_id}",
+            "status": HttpResponseStatusCodeType.NOT_FOUND
+        }
+
+        outcome = response.json()
+
+        assert outcome.pop("timestamp") is not None
+
+        assert outcome == expected
