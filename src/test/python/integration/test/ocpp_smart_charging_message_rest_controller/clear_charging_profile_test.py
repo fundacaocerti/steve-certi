@@ -36,6 +36,10 @@ class TestClearChargingProfile:
 
         database.connect()
 
+        database.delete_all_charge_points()
+
+        database.delete_all_profiles()
+
         charge_box_id = "CP001"
 
         database.create_charge_point(charge_box_id)
