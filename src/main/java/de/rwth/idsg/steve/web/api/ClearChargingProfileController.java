@@ -107,8 +107,8 @@ public class ClearChargingProfileController {
         }
 
         ClearChargingProfileParams params = create_Ocpp16_params_from_REST(chargeBoxId, body_params);
-        getClient16().clearChargingProfile(params);
-        response.put("status", "Accepted");
+        
+        response.put("taskId", getClient16().clearChargingProfile(params));
         return response;
     }
 
