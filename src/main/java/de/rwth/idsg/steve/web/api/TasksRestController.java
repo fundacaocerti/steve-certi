@@ -68,7 +68,7 @@ import java.util.ArrayList;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/api/v0/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v0/task", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class TasksRestController {
     @Autowired
@@ -88,14 +88,22 @@ public class TasksRestController {
     @ResponseBody
     public Map<String, Object> getTask(@PathVariable("taskId") int taskId) {
         Map<String, Object> response = new HashMap<>();
-        CommunicationTask task = getClient16().getTask(taskId);
-        Map<String, RequestResult> taskResultMap = task.getResultMap();
-        String taskChargeBox = taskResultMap.keySet().iterator().next();
-        RequestResult taskResults = taskResultMap.get(taskChargeBox);
-        response.put("chargeBox:", taskChargeBox);
-        response.put("response:", taskResults.getResponse());
-        response.put("errors:",  taskResults.getErrorMessage());
-        return response;
+        try
+        {
+            CommunicationTask task = getClient16().getTask(taskId);
+            Map<String, RequestResult> taskResultMap = task.getResultMap();
+            String taskChargeBox = taskResultMap.keySet().iterator().next();
+            RequestResult taskResults = taskResultMap.get(taskChargeBox);
+            response.put("chargeBox:", taskChargeBox);
+            response.put("response:", taskResults.getResponse());
+            response.put("errors:",  taskResults.getErrorMessage());
+            return response;
+        }
+        catch(SteveException e)
+        {
+            throw new SteveException.NotFound(String.format("Could not find taskId %d", taskId));
+        }
+
     }
 
     
