@@ -36,6 +36,10 @@ class TestClearChargingProfile:
 
         database.connect()
 
+        database.delete_all_charge_points()
+
+        database.delete_all_profiles()
+
         charge_box_id = "CP001"
 
         database.create_charge_point(charge_box_id)
@@ -54,9 +58,7 @@ class TestClearChargingProfile:
 
         database.disconnect()
 
-    @pytest.mark.xfail
-    def test_successful_accepted(self, database_setup):
-        pytest.xfail("This features is not yet implemented")
+    def test_successful_createdTask(self, database_setup):
 
         charge_box_id = "CP001"
 
@@ -65,10 +67,6 @@ class TestClearChargingProfile:
         charge_point = ChargePointDummy(uri)
 
         charge_point.init()
-
-        asyncio.run(
-            charge_point.clear_charging_profile_conf(ClearChargingProfileStatus.ACCEPTED.value)
-        )
 
         api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
 
@@ -93,60 +91,14 @@ class TestClearChargingProfile:
         assert response.headers["Content-Type"] == "application/json"
 
         expected = {
-            "status": "Accepted",
+            "taskId": int
         }
+
 
         outcome = response.json()
 
-        assert outcome == expected
+        assert isinstance(outcome["taskId"], int)
 
-        charge_point.deinit()
-
-    @pytest.mark.xfail
-    def test_successful_unknown(self, database_setup):
-        pytest.xfail("This features is not yet implemented")
-
-        charge_box_id = "CP001"
-
-        uri = f"{self.websocket_endpoint}/{charge_box_id}"
-
-        charge_point = ChargePointDummy(uri)
-
-        charge_point.init()
-
-        asyncio.run(
-            charge_point.clear_charging_profile_conf(ClearChargingProfileStatus.UNKNOWN.value)
-        )
-
-        api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
-
-        app = AppDummy(self.operation, api_host)
-
-        app.headers = {"Content-Type": "application/json"}
-
-        app.headers = {"api-key": "certi"}
-
-        body = {
-            "id" : 1,
-            "connectorId" : 0,
-            "chargingProfilePurpose": "CHARGE_POINT_MAX_PROFILE"
-        }
-
-        app.payload = body
-
-        response = app.request()
-
-        assert response.status_code == HttpResponseStatusCodeType.OK
-
-        assert response.headers["Content-Type"] == "application/json"
-
-        expected = {
-            "status": "Unknown",
-        }
-
-        outcome = response.json()
-
-        assert outcome == expected
 
         charge_point.deinit()
 
@@ -174,9 +126,7 @@ class TestClearChargingProfile:
 
         assert outcome == expected
 
-    @pytest.mark.xfail
-    def test_not_found(self) -> None:
-        pytest.xfail("This features is not yet implemented")
+    def test_chargebox_not_found(self) -> None:
 
         charging_profile_id = 2
 
@@ -194,7 +144,45 @@ class TestClearChargingProfile:
 
         expected = {
             "error": "Not Found",
-            "message": "Could not find this chargingProfileId",
+            "message": "Could not find this chargeBoxId",
+            "path": f"http://localhost:8180/{self.base_path}/{self.path}/{charging_profile_id}",
+            "status": HttpResponseStatusCodeType.NOT_FOUND
+        }
+
+        outcome = response.json()
+
+        assert outcome.pop("timestamp") is not None
+
+        assert outcome == expected
+
+    def test_chargingprofile_not_found(self, database_setup) -> None:
+
+        charging_profile_id = "CP001"
+
+        api_host = f"/{self.base_path}/{self.path}/{charging_profile_id}"
+
+        app = AppDummy(self.operation, api_host)
+
+        app.headers = {"Content-Type":"application/json"}
+
+        app.headers = {"api-key":"certi"}
+
+        body = {
+            "id" : 69,
+            "connectorId" : 0,
+            "chargingProfilePurpose": "CHARGE_POINT_MAX_PROFILE"
+        }
+
+        app.payload = body
+
+        response = app.request()
+
+
+        assert response.headers["Content-Type"] == "application/json"
+
+        expected = {
+            "error": "Not Found",
+            "message": "Could not find this Charging Profile",
             "path": f"http://localhost:8180/{self.base_path}/{self.path}/{charging_profile_id}",
             "status": HttpResponseStatusCodeType.NOT_FOUND
         }

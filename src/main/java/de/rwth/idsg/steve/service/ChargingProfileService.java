@@ -47,5 +47,9 @@ public class ChargingProfileService {
     public int delete(Integer chargingProfilePk) {
         return ChargingProfileRepository.deleteRest(chargingProfilePk);
     }
+
+    public ChargingProfile.Details getDetails(Integer chargingProfilePk) {
+        return ChargingProfileRepository.getDetails(chargingProfilePk);
+    }
     
 }

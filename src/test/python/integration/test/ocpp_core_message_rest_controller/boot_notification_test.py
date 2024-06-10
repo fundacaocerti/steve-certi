@@ -33,6 +33,8 @@ class TestBootNotification:
 
         database.connect()
 
+        database.delete_all_charge_points()
+
         charge_box_id = "CP001"
 
         database.create_charge_point(charge_box_id)
