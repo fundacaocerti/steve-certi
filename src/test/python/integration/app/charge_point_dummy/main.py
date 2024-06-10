@@ -33,8 +33,8 @@ def main() -> None:
 
     ##
     # FIXME Replace this comment with the OCPP message to be tested
-    status = ClearChargingProfileStatus.UNKNOWN.value
-    asyncio.run(cp_dummy.clear_charging_profile_conf(status))
+    # status = ClearChargingProfileStatus.ACCEPTED.value
+    # asyncio.run(cp_dummy.clear_charging_profile_conf(status))
 
     cp_dummy.deinit()
 
