@@ -90,15 +90,9 @@ class TestClearChargingProfile:
 
         assert response.headers["Content-Type"] == "application/json"
 
-        expected = {
-            "taskId": int
-        }
-
-
         outcome = response.json()
 
         assert isinstance(outcome["taskId"], int)
-
 
         charge_point.deinit()
 
@@ -176,7 +170,6 @@ class TestClearChargingProfile:
         app.payload = body
 
         response = app.request()
-
 
         assert response.headers["Content-Type"] == "application/json"
 
