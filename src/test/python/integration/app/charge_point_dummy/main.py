@@ -10,7 +10,11 @@ import logging.config
 
 from charge_point_dummy import ChargePointDummy
 
+from v16.enums import ClearChargingProfileStatus
+
 from pathlib import Path
+
+import asyncio
 
 def main() -> None:
     current_directory = Path.cwd()
@@ -29,10 +33,8 @@ def main() -> None:
 
     ##
     # FIXME Replace this comment with the OCPP message to be tested
-    # example: 
-    #    asyncio.run(
-    #       cp_dummy.clear_charging_profile_conf(ClearChargingProfileStatus.ACCEPTED.value)
-    #   )
+    # status = ClearChargingProfileStatus.ACCEPTED.value
+    # asyncio.run(cp_dummy.clear_charging_profile_conf(status))
 
     cp_dummy.deinit()
 

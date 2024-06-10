@@ -30,7 +30,14 @@ class TestAddChargingProfile:
 
     @pytest.fixture
     def database_setup(self) -> None:
-        # No action needed
+
+        database = DatabaseHelper()
+
+        database.connect()
+        
+        database.delete_all_profiles()
+
+        database.disconnect()
 
         yield
 
