@@ -94,7 +94,7 @@ public class ClearChargingProfileController {
 
     @PostMapping(value ="/{chargeBoxId}")
     @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.OK)
     public Map<String, Object> add(@PathVariable("chargeBoxId") String chargeBoxId, @RequestBody @Valid ClearChargingProfileParamsRest body_params) {
         Map<String, Object> response = new HashMap<>();
         if (ChargeBoxExists(chargeBoxId).isEmpty())

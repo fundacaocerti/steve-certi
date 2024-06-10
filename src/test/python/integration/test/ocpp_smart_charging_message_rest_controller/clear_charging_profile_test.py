@@ -86,7 +86,7 @@ class TestClearChargingProfile:
 
         response = app.request()
 
-        assert response.status_code == HttpResponseStatusCodeType.ACCEPTED
+        assert response.status_code == HttpResponseStatusCodeType.OK
 
         assert response.headers["Content-Type"] == "application/json"
 
