@@ -236,14 +236,14 @@ class ChargePointDummy:
     async def clear_charging_profile_conf(self, status) -> None:
         try:
             await asyncio.wait_for(
-                self.clear_charging_profile_conf_internal(status), timeout = 60
+                self.clear_charging_profile_conf_internal(status), timeout = 5
             )
 
         except asyncio.TimeoutError as e:
             logger.error(e)
 
     async def clear_charging_profile_conf_internal(self, status) -> None:
-        self.__ws.settimeout(60 * 10)
+        self.__ws.settimeout(5)
 
         try:
             call = self.__ws.receive()
