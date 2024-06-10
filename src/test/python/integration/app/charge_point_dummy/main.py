@@ -27,6 +27,8 @@ def main() -> None:
 
     url = "ws://localhost:8180/steve/websocket/CentralSystemService/CP001"
 
+    thread_wait_timeout=10
+
     cp_dummy = ChargePointDummy(url)
 
     cp_dummy.init()
@@ -34,7 +36,9 @@ def main() -> None:
     ##
     # FIXME Replace this comment with the OCPP message to be tested
     # status = ClearChargingProfileStatus.ACCEPTED.value
-    # asyncio.run(cp_dummy.clear_charging_profile_conf(status))
+    # thread = cp_dummy.create_parallel_thread_clear_charging_profile_conf(status)
+    # thread.start()
+    # thread.join(thread_wait_timeout)
 
     cp_dummy.deinit()
 

@@ -25,6 +25,7 @@ from v16.enums import (
 )
 
 from protocol.websocket import WebSocketHelper
+import threading
 
 logger = logging.getLogger('ChargePointDummy')
 
@@ -67,6 +68,7 @@ class ChargePointDummy:
         deallocating resources.
         '''
         self.__ws.disconnect()
+        time.sleep(1)
 
     @property
     def url(self) -> str:
@@ -207,16 +209,7 @@ class ChargePointDummy:
     ##
     # Direction: Server-to-Client
 
-    async def set_charging_profile_conf(self, status) -> None:
-        try:
-            await asyncio.wait_for(
-                self.set_charging_profile_conf_internal(status), timeout = 4
-            )
-
-        except asyncio.TimeoutError as e:
-            logger.error(e)
-
-    async def set_charging_profile_conf_internal(self, status) -> None:
+    def set_charging_profile_conf(self, status) -> None:
         self.__ws.settimeout(3)
 
         try:
@@ -233,21 +226,11 @@ class ChargePointDummy:
         except websocket._exceptions.WebSocketTimeoutException as e:
             logger.error(e)
 
-    async def clear_charging_profile_conf(self, status) -> None:
-        try:
-            await asyncio.wait_for(
-                self.clear_charging_profile_conf_internal(status), timeout = 5
-            )
 
-        except asyncio.TimeoutError as e:
-            logger.error(e)
-
-    async def clear_charging_profile_conf_internal(self, status) -> None:
-        self.__ws.settimeout(5)
-
+    def clear_charging_profile_conf(self, status) -> None:
+        self.__ws.settimeout(10)
         try:
             call = self.__ws.receive()
-
             uuid = self.get_uuid_from_call_message(call)
 
             payload = ClearChargingProfilePayload(status)
@@ -259,3 +242,6 @@ class ChargePointDummy:
         except websocket._exceptions.WebSocketTimeoutException as e:
             logger.error(e)
 
+    def create_parallel_thread_clear_charging_profile_conf(self, status) -> threading.Thread:
+        thread = threading.Thread(target=self.clear_charging_profile_conf, args=(status,))
+        return thread
