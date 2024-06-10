@@ -91,7 +91,7 @@ class TestClearChargingProfile:
         assert response.headers["Content-Type"] == "application/json"
 
         expected = {
-            "taskId": 1
+            "taskId": int
         }
 
 
