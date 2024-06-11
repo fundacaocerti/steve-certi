@@ -5,8 +5,8 @@ pipeline {
     agent { label 'server2' }
     environment { 
      PROJECT_DIR = '/mobeq'
-     SSH_USER = "ght"
-     SSH_HOST =  "177.71.116.28"
+        SSH_USER = 'ght'
+        SSH_HOST =  '177.71.116.28'
     }
     stages {
         stage('Prepare enviroment') {
@@ -31,12 +31,10 @@ pipeline {
                 }
             }
             steps {
-                
                 sh 'dockerd-entrypoint.sh &'
                 sh 'sleep 10 && export DOCKER_BUILDKIT=1 && docker compose -f scripts/docker-compose-test.yml up --build --exit-code-from app'
                 archiveArtifacts artifacts: 'steve_logs.log', fingerprint: true
             }
-            
         }
         stage('Push to Production') {
             when {
