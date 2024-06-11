@@ -53,10 +53,10 @@ pipeline {
                     '''
 
                     sh '''
-                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "docker compose -f ~/steve-certi-deploy/docker-compose.yml down"
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "docker compose -f ~/steve-certi-deploy/docker-compose-production.yml down"
                     '''
                     sh '''
-                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "docker compose -f ~/steve-certi-deploy/docker-compose.yml up -d --build"
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "docker compose -f ~/steve-certi-deploy/docker-compose-production.yml up -d --build"
                     '''
                     sh '''
                         ./scripts/wait-for.sh --host=${SSH_HOST} --port=8180 --timeout=240 
