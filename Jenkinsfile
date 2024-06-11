@@ -63,6 +63,32 @@ pipeline {
                     '''
                 }
             }
+            post {
+                success {
+                    withCredentials([string(credentialsId: 'jenkins-google-chat-hook', variable: 'WEBHOOK')]) {
+                            sh '''
+                            curl --request POST \
+                            --url "$WEBHOOK" \
+                            --header 'Content-Type: application/json' \
+                            --data "{
+                                'text': 'Status pipeline: *Steve Certi foi atualizado!* \n Servidor: http://${SSH_HOST} \n Documentação: http://${SSH_HOST}/docs \n _Bitbucket_: ${GIT_URL} \n _Branch_: ${BRANCH_NAME} \n _Commit_: ${GIT_COMMIT} \n Jenkins Job: ${BUILD_URL}'
+                            }"
+                            '''
+                    }
+                }
+                failure {
+                    withCredentials([string(credentialsId: 'jenkins-google-chat-hook', variable: 'WEBHOOK')]) {
+                            sh '''
+                            curl --request POST \
+                            --url "$WEBHOOK" \
+                            --header 'Content-Type: application/json' \
+                            --data "{
+                                'text': 'Status pipeline: *Deploy Steve Certi falhou!* \n _Bitbucket_: ${GIT_URL} \n _Branch_: ${BRANCH_NAME} \n _Commit_: ${GIT_COMMIT}  \n Jenkins Job: ${BUILD_URL}'
+                            }"
+                            '''
+                    }
+                }
+            }
         }
     }
     post {
