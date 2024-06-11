@@ -3,8 +3,8 @@ pipeline {
         timestamps()
     }
     agent { label 'server2' }
-    environment { 
-     PROJECT_DIR = '/mobeq'
+    environment {
+        PROJECT_DIR = '/mobeq'
         SSH_USER = 'ght'
         SSH_HOST =  '177.71.116.28'
     }
@@ -45,7 +45,7 @@ pipeline {
                     sh '''
                         rsync -Pav -e "ssh -i $SSH_KEY" ./ ${SSH_USER}@${SSH_HOST}:~/steve-certi-deploy
                     '''
-                   sh '''
+                    sh '''
                         deployment_footer="CERTI Build:$TAG_NAME"
                         ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "echo $deployment_footer > ~/steve-certi-deploy/src/main/resources/webapp/static/text/certi-version.txt"
                     '''
@@ -57,7 +57,7 @@ pipeline {
                         ssh -i $SSH_KEY -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "docker compose -f ~/steve-certi-deploy/docker-compose-production.yml up -d --build"
                     '''
                     sh '''
-                        ./scripts/wait-for.sh --host=${SSH_HOST} --port=8180 --timeout=240 
+                        ./scripts/wait-for.sh --host=${SSH_HOST} --port=8180 --timeout=240
                     '''
                 }
             }
@@ -93,6 +93,6 @@ pipeline {
         // Clean after build
         always {
             cleanWs()
-	}
+        }
     }
 }
