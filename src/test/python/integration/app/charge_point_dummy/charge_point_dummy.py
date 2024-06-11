@@ -7,6 +7,7 @@ import asyncio
 import logging
 import time
 import uuid
+import threading
 import websocket
 
 from v16.payload import (
@@ -207,16 +208,13 @@ class ChargePointDummy:
     ##
     # Direction: Server-to-Client
 
-    async def set_charging_profile_conf(self, status) -> None:
-        try:
-            await asyncio.wait_for(
-                self.set_charging_profile_conf_internal(status), timeout = 4
-            )
+    def set_charging_profile_conf(self, status) -> None:
+        set_charging_profile_thread = \
+            threading.Thread(target=self.set_charging_profile_conf_internal, args=(status,))
 
-        except asyncio.TimeoutError as e:
-            logger.error(e)
+        set_charging_profile_thread.start()
 
-    async def set_charging_profile_conf_internal(self, status) -> None:
+    def set_charging_profile_conf_internal(self, status) -> None:
         self.__ws.settimeout(3)
 
         try:
@@ -233,17 +231,14 @@ class ChargePointDummy:
         except websocket._exceptions.WebSocketTimeoutException as e:
             logger.error(e)
 
-    async def clear_charging_profile_conf(self, status) -> None:
-        try:
-            await asyncio.wait_for(
-                self.clear_charging_profile_conf_internal(status), timeout = 5
-            )
+    def clear_charging_profile_conf(self, status):
+        clear_charging_profile_thread = \
+            threading.Thread(target=self.clear_charging_profile_conf_internal, args=(status,))
 
-        except asyncio.TimeoutError as e:
-            logger.error(e)
+        clear_charging_profile_thread.start()
 
-    async def clear_charging_profile_conf_internal(self, status) -> None:
-        self.__ws.settimeout(5)
+    def clear_charging_profile_conf_internal(self, status) -> None:
+        self.__ws.settimeout(3)
 
         try:
             call = self.__ws.receive()
@@ -258,4 +253,3 @@ class ChargePointDummy:
 
         except websocket._exceptions.WebSocketTimeoutException as e:
             logger.error(e)
-
