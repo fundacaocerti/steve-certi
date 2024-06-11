@@ -4,9 +4,7 @@
 # ******************************************************************************/
 
 import pytest
-import asyncio
-import threading
-import time 
+
 from app_dummy import AppDummy
 from enums import HttpResponseStatusCodeType
 from charge_point_dummy import ChargePointDummy
@@ -16,12 +14,9 @@ from v16.enums import ClearChargingProfileStatus
 
 class TestTaskStatus:
     @property
-    def thread_wait_timeout(self) -> str:
-        return 10
-    @property
     def operation(self) -> str:
         return "GET"
-    
+
     @property
     def task_initiator_operation(self) -> str:
         return "POST"
@@ -45,42 +40,6 @@ class TestTaskStatus:
     @property
     def websocket_endpoint(self) -> str:
         return "ws://localhost:8180/steve/websocket/CentralSystemService"
-    
-    
-    def _task_initiate_clear_charging_profile(self, charge_box_id) -> bool:
-
-        api_host = f"/{self.task_initiator_base_path}/{self.task_initiator_path}/{charge_box_id}"
-
-        app = AppDummy(self.task_initiator_operation, api_host)
-
-        app.headers = {"Content-Type": "application/json"}
-
-        app.headers = {"api-key": "certi"}
-
-        body = {
-            "id" : 1,
-            "connectorId" : 0,
-            "chargingProfilePurpose": "CHARGE_POINT_MAX_PROFILE"
-        }
-
-        app.payload = body
-
-        response = app.request()
-
-        assert response.status_code == HttpResponseStatusCodeType.OK
-
-        assert response.headers["Content-Type"] == "application/json"
-
-        expected = {
-            "taskId": int
-        }
-
-
-        outcome = response.json()
-
-        assert isinstance(outcome["taskId"], int)
-
-        return outcome["taskId"]
 
     @pytest.fixture
     def database_setup(self) -> None:
@@ -109,9 +68,37 @@ class TestTaskStatus:
         database.delete_all_charge_points()
 
         database.disconnect()
-        
-    def test_successful_createdTask_unknown(self, database_setup):
 
+    def task_initiate_clear_charging_profile(self, charge_box_id) -> bool:
+        api_host = f"/{self.task_initiator_base_path}/{self.task_initiator_path}/{charge_box_id}"
+
+        app = AppDummy(self.task_initiator_operation, api_host)
+
+        app.headers = {"Content-Type": "application/json"}
+
+        app.headers = {"api-key": "certi"}
+
+        body = {
+            "id" : 1,
+            "connectorId" : 0,
+            "chargingProfilePurpose": "CHARGE_POINT_MAX_PROFILE"
+        }
+
+        app.payload = body
+
+        response = app.request()
+
+        assert response.status_code == HttpResponseStatusCodeType.OK
+
+        assert response.headers["Content-Type"] == "application/json"
+
+        outcome = response.json()
+
+        assert isinstance(outcome["taskId"], int)
+
+        return outcome["taskId"]
+
+    def test_successful_createdTask_unknown(self, database_setup):
         charge_box_id = "CP001"
 
         uri = f"{self.websocket_endpoint}/{charge_box_id}"
@@ -119,10 +106,10 @@ class TestTaskStatus:
         charge_point = ChargePointDummy(uri)
 
         charge_point.init()
-        thread = charge_point.create_parallel_thread_clear_charging_profile_conf(ClearChargingProfileStatus.UNKNOWN.value)
-        thread.start()
 
-        taskId = self._task_initiate_clear_charging_profile(charge_box_id)
+        charge_point.clear_charging_profile_conf(ClearChargingProfileStatus.UNKNOWN.value)
+
+        taskId = self.task_initiate_clear_charging_profile(charge_box_id)
 
         api_host = f"/{self.base_path}/{self.path}/{taskId}"
 
@@ -134,25 +121,23 @@ class TestTaskStatus:
 
         response = app.request()
 
-        thread.join(self.thread_wait_timeout)
         assert response.status_code == HttpResponseStatusCodeType.OK
 
         assert response.headers["Content-Type"] == "application/json"
 
         expected = {
-	    "response:": "Unknown",
-	    "errors:": None,
-	    "chargeBox:": f'{charge_box_id}'
+            "response:": "Unknown",
+            "errors:": None,
+            "chargeBox:": f'{charge_box_id}'
         }
 
         outcome = response.json()
-        # Wait for the result:
+
         assert outcome == expected
 
         charge_point.deinit()
 
     def test_successful_createdTask_accepted(self, database_setup):
-
         charge_box_id = "CP001"
 
         uri = f"{self.websocket_endpoint}/{charge_box_id}"
@@ -160,10 +145,10 @@ class TestTaskStatus:
         charge_point = ChargePointDummy(uri)
 
         charge_point.init()
-        thread = charge_point.create_parallel_thread_clear_charging_profile_conf(ClearChargingProfileStatus.ACCEPTED.value)
-        thread.start()
 
-        taskId = self._task_initiate_clear_charging_profile(charge_box_id)
+        charge_point.clear_charging_profile_conf(ClearChargingProfileStatus.ACCEPTED.value)
+
+        taskId = self.task_initiate_clear_charging_profile(charge_box_id)
 
         api_host = f"/{self.base_path}/{self.path}/{taskId}"
 
@@ -175,28 +160,26 @@ class TestTaskStatus:
 
         response = app.request()
 
-        thread.join(self.thread_wait_timeout)
         assert response.status_code == HttpResponseStatusCodeType.OK
 
         assert response.headers["Content-Type"] == "application/json"
 
         expected = {
-	    "response:": "Accepted",
-	    "errors:": None,
-        "chargeBox:": f'{charge_box_id}'
+            "response:": "Accepted",
+            "errors:": None,
+            "chargeBox:": f'{charge_box_id}'
         }
 
         outcome = response.json()
-        # Wait for the result:
+
         assert outcome == expected
 
         charge_point.deinit()
 
     def test_successful_createdTask_chargepoint_offline_error(self, database_setup):
-
         charge_box_id = "CP001"
 
-        taskId = self._task_initiate_clear_charging_profile(charge_box_id)
+        taskId = self.task_initiate_clear_charging_profile(charge_box_id)
 
         api_host = f"/{self.base_path}/{self.path}/{taskId}"
 
@@ -213,13 +196,13 @@ class TestTaskStatus:
         assert response.headers["Content-Type"] == "application/json"
 
         expected = {
-	    "response:": None,
-        'errors:': f"No session context for chargeBoxId '{charge_box_id}'",
-	    "chargeBox:": f'{charge_box_id}'
+            "response:": None,
+            "errors:": f"No session context for chargeBoxId '{charge_box_id}'",
+            "chargeBox:": f'{charge_box_id}'
         }
 
         outcome = response.json()
-        # Wait for the result:
+
         assert outcome == expected
 
     def test_unauthorized(self):
@@ -247,7 +230,6 @@ class TestTaskStatus:
         assert outcome == expected
 
     def test_task_not_found(self) -> None:
-
         charging_profile_id = 0
 
         api_host = f"/{self.base_path}/{self.path}/{charging_profile_id}"
@@ -262,7 +244,12 @@ class TestTaskStatus:
 
         assert response.headers["Content-Type"] == "application/json"
 
-        expected = {'error': 'Not Found', 'message': f"Could not find taskId {charging_profile_id}", 'path': f'http://localhost:8180/{self.base_path}/{self.path}/{charging_profile_id}', 'status': 404}
+        expected = {
+            "error": "Not Found",
+            "message": f"Could not find taskId {charging_profile_id}",
+            "path": f"http://localhost:8180/{self.base_path}/{self.path}/{charging_profile_id}",
+            "status": HttpResponseStatusCodeType.NOT_FOUND
+        }
 
         outcome = response.json()
 

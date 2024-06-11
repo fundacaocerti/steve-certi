@@ -7,6 +7,7 @@ import asyncio
 import logging
 import time
 import uuid
+import threading
 import websocket
 
 from v16.payload import (
@@ -25,7 +26,6 @@ from v16.enums import (
 )
 
 from protocol.websocket import WebSocketHelper
-import threading
 
 logger = logging.getLogger('ChargePointDummy')
 
@@ -68,7 +68,6 @@ class ChargePointDummy:
         deallocating resources.
         '''
         self.__ws.disconnect()
-        time.sleep(1)
 
     @property
     def url(self) -> str:
@@ -210,6 +209,12 @@ class ChargePointDummy:
     # Direction: Server-to-Client
 
     def set_charging_profile_conf(self, status) -> None:
+        set_charging_profile_thread = \
+            threading.Thread(target=self.set_charging_profile_conf_internal, args=(status,))
+
+        set_charging_profile_thread.start()
+
+    def set_charging_profile_conf_internal(self, status) -> None:
         self.__ws.settimeout(3)
 
         try:
@@ -226,11 +231,18 @@ class ChargePointDummy:
         except websocket._exceptions.WebSocketTimeoutException as e:
             logger.error(e)
 
+    def clear_charging_profile_conf(self, status):
+        clear_charging_profile_thread = \
+            threading.Thread(target=self.clear_charging_profile_conf_internal, args=(status,))
 
-    def clear_charging_profile_conf(self, status) -> None:
-        self.__ws.settimeout(10)
+        clear_charging_profile_thread.start()
+
+    def clear_charging_profile_conf_internal(self, status) -> None:
+        self.__ws.settimeout(3)
+
         try:
             call = self.__ws.receive()
+
             uuid = self.get_uuid_from_call_message(call)
 
             payload = ClearChargingProfilePayload(status)
@@ -241,7 +253,3 @@ class ChargePointDummy:
 
         except websocket._exceptions.WebSocketTimeoutException as e:
             logger.error(e)
-
-    def create_parallel_thread_clear_charging_profile_conf(self, status) -> threading.Thread:
-        thread = threading.Thread(target=self.clear_charging_profile_conf, args=(status,))
-        return thread
