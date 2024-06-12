@@ -184,3 +184,38 @@ class TestSetChargingProfile:
         assert outcome.pop("timestamp") is not None
 
         assert outcome == expected
+
+    def test_charge_point_max_profile_not_equal_to_zero(self, database_setup):
+        charge_box_id = "CP001"
+
+        api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
+
+        app = AppDummy(self.operation, api_host)
+
+        app.headers = {"Content-Type":"application/json"}
+
+        app.headers = {"api-key":"certi"}
+
+        body = {
+            "chargingProfileId" : 1,
+            "connectorId": 1 # expected error
+        }
+
+        app.payload = body
+
+        response = app.request()
+
+        assert response.headers["Content-Type"] == "application/json"
+
+        expected = {
+            "error": "Internal Server Error",
+            "message": "ChargePointMaxProfile can only be set at Charge Point ConnectorId 0",
+            "path": f"http://localhost:8180/{self.base_path}/{self.path}/{charge_box_id}",
+            "status": HttpResponseStatusCodeType.INTERNAL_SERVER_ERROR
+        }
+
+        outcome = response.json()
+
+        assert outcome.pop("timestamp") is not None
+
+        assert outcome == expected
