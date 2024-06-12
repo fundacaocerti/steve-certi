@@ -87,6 +87,16 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                   .fetch(TRANSACTION.TRANSACTION_PK);
     }
 
+    public List<Integer> getLastConnectorTransactions(String chargeBoxId) {
+        return ctx.select(TRANSACTION.TRANSACTION_PK)
+                  .from(TRANSACTION)
+                  .join(CONNECTOR)
+                    .on(TRANSACTION.CONNECTOR_PK.equal(CONNECTOR.CONNECTOR_PK))
+                    .and(CONNECTOR.CHARGE_BOX_ID.equal(chargeBoxId))
+                    .orderBy(TRANSACTION.TRANSACTION_PK.desc())
+                  .fetch(TRANSACTION.TRANSACTION_PK);
+    }
+
     @Override
     public TransactionDetails getDetails(int transactionPk) {
 
