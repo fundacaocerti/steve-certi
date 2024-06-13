@@ -3,7 +3,6 @@
 # * All rights reserved.
 # ******************************************************************************/
 
-import asyncio
 import logging
 import time
 import uuid
@@ -34,6 +33,8 @@ class ChargePointDummy:
         self.__ws = WebSocketHelper(False)
         self.__url = url
         self.__interval = None
+        self.__set_charging_profile_thread = None
+        self.__clear_charging_profile_thread = None
 
     def init(self, status_notification_delay = 0) -> None:
         '''
@@ -209,10 +210,13 @@ class ChargePointDummy:
     # Direction: Server-to-Client
 
     def set_charging_profile_conf(self, status) -> None:
-        set_charging_profile_thread = \
+        self.__set_charging_profile_thread = \
             threading.Thread(target=self.set_charging_profile_conf_internal, args=(status,))
 
-        set_charging_profile_thread.start()
+        self.__set_charging_profile_thread.start()
+
+    def await_set_charging_profile_thread(self, timeout = 5) -> None:
+        self.__set_charging_profile_thread.join(timeout)
 
     def set_charging_profile_conf_internal(self, status) -> None:
         self.__ws.settimeout(3)
@@ -232,13 +236,16 @@ class ChargePointDummy:
             logger.error(e)
 
     def clear_charging_profile_conf(self, status):
-        clear_charging_profile_thread = \
+        self.__clear_charging_profile_thread = \
             threading.Thread(target=self.clear_charging_profile_conf_internal, args=(status,))
 
-        clear_charging_profile_thread.start()
+        self.__clear_charging_profile_thread.start()
+
+    def await_clear_charging_profile_thread(self, timeout = 5) -> None:
+        self.__clear_charging_profile_thread.join(timeout)
 
     def clear_charging_profile_conf_internal(self, status) -> None:
-        self.__ws.settimeout(3)
+        self.__ws.settimeout(5)
 
         try:
             call = self.__ws.receive()

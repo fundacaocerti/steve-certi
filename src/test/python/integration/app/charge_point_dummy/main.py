@@ -36,9 +36,8 @@ def main() -> None:
     ##
     # FIXME Replace this comment with the OCPP message to be tested
     # status = ClearChargingProfileStatus.ACCEPTED.value
-    # thread = cp_dummy.create_parallel_thread_clear_charging_profile_conf(status)
-    # thread.start()
-    # thread.join(thread_wait_timeout)
+    # cp_dummy.clear_charging_profile_conf(status)
+    # cp_dummy.await_clear_charging_profile_thread(60)
 
     cp_dummy.deinit()
 
