@@ -22,7 +22,8 @@ from v16.enums import (
     Measurand,
     Phase,
     Location,
-    Unit
+    Unit,
+    Reason
 )
 
 from util.string_handling import snake_to_camel
@@ -78,6 +79,23 @@ class MeterValuesPayload(ToJson):
     connector_id: int
     transaction_id: Optional[int] = None
     meter_value: MeterValue = field(default_factory=list)
+
+@dataclass
+class StartTransactionPayload(ToJson):
+    connector_id: int
+    id_tag: str
+    meter_start: int
+    timestamp: str
+    reservation_id: Optional[int] = None
+
+@dataclass
+class StopTransactionPayload(ToJson):
+    meter_stop: int
+    timestamp: str
+    transaction_id: int
+    reason: Optional[Reason] = None
+    id_tag: Optional[str] = None
+    transaction_data: Optional[List] = None
 
 ###
 # call-result-type messages

@@ -9,6 +9,7 @@ import uuid
 import threading
 import websocket
 import datetime
+import json
 
 from v16.payload import (
     BootNotificationPayload,
@@ -18,7 +19,9 @@ from v16.payload import (
     SetChargingProfilePayload,
     MeterValuesPayload,
     SampledValue,
-    MeterValue
+    MeterValue,
+    StartTransactionPayload,
+    StopTransactionPayload
 )
 
 from v16.enums import (
@@ -31,7 +34,8 @@ from v16.enums import (
     Measurand,
     Phase,
     Location,
-    Unit
+    Unit,
+    Reason
 )
 
 from protocol.websocket import WebSocketHelper
