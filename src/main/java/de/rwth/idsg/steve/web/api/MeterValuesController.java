@@ -18,6 +18,8 @@
  */
 package de.rwth.idsg.steve.web.api;
 
+import de.rwth.idsg.steve.SteveException;
+import de.rwth.idsg.steve.service.ChargePointHelperService;
 import de.rwth.idsg.steve.repository.TransactionRepository;
 import de.rwth.idsg.steve.repository.dto.Transaction;
 import de.rwth.idsg.steve.web.api.ApiControllerAdvice.ApiErrorResponse;
@@ -34,13 +36,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import java.util.Map;
 import javax.validation.Valid;
 import java.util.List;
 
+import ocpp.cs._2015._10.RegistrationStatus;
 import java.util.ArrayList;
 
+import java.util.Optional;
 import java.util.HashMap;
 
 /**
@@ -53,7 +58,14 @@ import java.util.HashMap;
 @RequiredArgsConstructor
 public class MeterValuesController {
 
+    @Autowired
+    private ChargePointHelperService chargePointHelperService;
+
     private final TransactionRepository transactionRepository;
+    private ChargePointHelperService getChargePointHelpService() {
+        return chargePointHelperService;
+    }
+
 
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK"),
@@ -64,6 +76,9 @@ public class MeterValuesController {
     @GetMapping(value ="/{chargeBoxId}")
     @ResponseBody
     public Map <String, Map<String, Object>> get(@PathVariable("chargeBoxId") String chargeBoxId) {
+        if (getRegistrationStatus(chargeBoxId).isEmpty()) {
+            throw new SteveException.NotFound("Could not find this chargeBoxId");
+        }
         Map <String, Map<String, Object>> response = new HashMap<>();
         List<Integer> transactionPks = transactionRepository.getLastConnectorTransactions(chargeBoxId);
         for (Integer transactionPk : transactionPks)
@@ -71,7 +86,8 @@ public class MeterValuesController {
             TransactionDetails details = transactionRepository.getDetails(transactionPk);    
             Map<String, Object> transactionResponse = parseTransactionDetails(details);
             String transactionId = Integer.toString(details.getTransaction().getId());
-            response.put(transactionId, transactionResponse);
+            String connectorId = Integer.toString(details.getTransaction().getConnectorId());
+            response.put(connectorId, transactionResponse);
         }
         log.debug("Read response for query: {}", response);
         return response;
@@ -80,14 +96,14 @@ public class MeterValuesController {
     Map<String,Object> parseTransactionDetails(TransactionDetails details)
     {
         Map<String, Object> response = new HashMap<>();
-        
-        response.put("connectorId", details.getTransaction().getConnectorId());
-        response.put("meterValue", new ArrayList<TransactionDetails.MeterValues>());
-        for (TransactionDetails.MeterValues MeterValue : details.getValues()) 
-        {
-            ArrayList<TransactionDetails.MeterValues> meterValuesList = (ArrayList<TransactionDetails.MeterValues>) response.get("meterValue");
-            meterValuesList.add(MeterValue);
-        }
+        Map<String,  List<TransactionDetails.MeterValues> > sampledValueList = new HashMap<>();
+        sampledValueList.put("sampledValue", details.getValues());
+        response.put("transactionId", details.getTransaction().getId());
+        response.put("meterValue", sampledValueList);
         return response;
+    }
+
+    private Optional<RegistrationStatus> getRegistrationStatus(String chargeBoxId) {
+        return getChargePointHelpService().getRegistrationStatus(chargeBoxId);
     }
 }
