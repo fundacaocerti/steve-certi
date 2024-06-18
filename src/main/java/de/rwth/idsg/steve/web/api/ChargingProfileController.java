@@ -49,7 +49,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/api/v0/smartCharging/ChargingProfile", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v0/smartCharging/chargingProfile", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class ChargingProfileController {
 
