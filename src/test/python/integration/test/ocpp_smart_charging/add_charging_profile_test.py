@@ -22,7 +22,7 @@ class TestAddChargingProfile:
 
     @property
     def path(self) -> str:
-        return "ChargingProfile"
+        return "chargingProfile"
 
     @property
     def websocket_endpoint(self) -> str:

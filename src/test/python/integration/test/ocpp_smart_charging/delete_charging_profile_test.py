@@ -20,7 +20,7 @@ class TestDeleteChargingProfile:
 
     @property
     def path(self) -> str:
-        return "ChargingProfile"
+        return "chargingProfile"
 
     @pytest.fixture
     def database_setup(self) -> None:
