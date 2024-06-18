@@ -13,6 +13,8 @@ class Action(Enum):
     HEARTBEAT = 'Heartbeat'
     STATUS_NOTIFICATION = 'StatusNotification'
     METER_VALUES = 'MeterValues'
+    START_TRANSACTION = 'StartTransaction'
+    STOP_TRANSACTION = 'StopTransaction'
 
 class AvailabilityStatus(Enum):
     '''
@@ -171,3 +173,19 @@ class Unit(Enum):
     fahrenheit = 'Fahrenheit'
     k = 'K'
     percent = 'Percent'
+
+class Reason(Enum):
+    '''
+    Reason for stopping a transaction in StopTransaction.req.
+    '''
+    emergency_stop = 'EmergencyStop'
+    ev_disconnected = 'EVDisconnected'
+    hard_reset = 'HardReset'
+    local = 'Local'
+    other = 'Other'
+    power_loss = 'PowerLoss'
+    reboot = 'Reboot'
+    remote = 'Remote'
+    soft_reset = 'SoftReset'
+    unlock_command = 'UnlockCommand'
+    de_authorized = 'DeAuthorized'

@@ -9,6 +9,7 @@ import uuid
 import threading
 import websocket
 import datetime
+import json
 
 from v16.payload import (
     BootNotificationPayload,
@@ -18,7 +19,9 @@ from v16.payload import (
     SetChargingProfilePayload,
     MeterValuesPayload,
     SampledValue,
-    MeterValue
+    MeterValue,
+    StartTransactionPayload,
+    StopTransactionPayload
 )
 
 from v16.enums import (
@@ -31,7 +34,8 @@ from v16.enums import (
     Measurand,
     Phase,
     Location,
-    Unit
+    Unit,
+    Reason
 )
 
 from protocol.websocket import WebSocketHelper
@@ -214,6 +218,57 @@ class ChargePointDummy:
 
         call = self.create_call_message(Action.STATUS_NOTIFICATION.value,
                                         payload.to_json())
+
+        self.__ws.send(call)
+
+        self.__ws.receive()
+
+    def start_transaction_req(self, connector_id, id_tag) -> int:
+        '''
+        This method is responsible for inform about a transaction that has been started.
+
+        @param connector_id This contains a number (>0) designating a connector of the
+        Charge Point.
+        @param id_tag This contains the identifier for which a transaction has to be started.
+        @return This contains the transaction id supplied by the Central System.
+        '''
+        payload = StartTransactionPayload(
+            connector_id=connector_id,
+            id_tag=id_tag,
+            meter_start=0,
+            timestamp=self.timestamp()
+        )
+
+        call = self.create_call_message(Action.START_TRANSACTION.value, payload.to_json())
+
+        self.__ws.send(call)
+
+        call_result = self.__ws.receive()
+
+        objects = json.loads(call_result)
+
+        payload = objects[2];
+
+        return payload['transactionId']
+
+    def stop_transaction_req(self, transaction_id, id_tag = None) -> None:
+        '''
+        This method is responsible for notifying to the Central System that the transaction has stopped.
+
+        @param transaction_id This contains the transaction-id as received by the StartTransaction.conf.
+        @param id_tag This contains the identifier which requested to stop the charging. It is optional
+        because a Charge Point may terminate charging without the presence of an idTag, e.g. in case of
+        a reset. A Charge Point SHALL send the idTag if known.
+        '''
+        payload = StopTransactionPayload(
+            meter_stop=1000,
+            timestamp=self.timestamp(),
+            transaction_id=transaction_id,
+            reason=Reason.ev_disconnected.value,
+            id_tag=id_tag
+        )
+
+        call = self.create_call_message(Action.STOP_TRANSACTION.value, payload.to_json())
 
         self.__ws.send(call)
 
