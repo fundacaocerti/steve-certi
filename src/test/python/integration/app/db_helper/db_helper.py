@@ -136,7 +136,7 @@ class DatabaseHelper:
                  duration_in_seconds
                 )
              VALUES
-                (0, 'TxDefaultProfile', 'Recurring', 'Daily', 'W', NOW(), 86400);
+                (0, 'ChargePointMaxProfile', 'Recurring', 'Daily', 'W', NOW(), 86400);
              '''
         cursor.execute(q1)
 
