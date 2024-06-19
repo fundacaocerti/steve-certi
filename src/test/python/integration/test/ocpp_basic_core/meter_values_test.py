@@ -53,7 +53,6 @@ class TestMeterValues:
 
         database.disconnect()
 
-    @pytest.mark.xfail(reason="This feature is not yet implemented")
     def test_successful(self, add_a_charging_point_to_the_database):
         charge_box_id = "CP001"
 
@@ -153,8 +152,8 @@ class TestMeterValues:
                     "transactionId" : transaction_id_1,
                     "meterValue" : [
                         {
-                            "timestamp": "2024-06-19T17:00:02Z",
-                            "sampledValue" : [
+                            "timestamp": "2024-06-19T17:00:02.000Z",
+                            "sampledValues" : [
                                 {
                                     "value" : "400",
                                     "context" : "Transaction.Begin",
@@ -201,8 +200,8 @@ class TestMeterValues:
                     "transactionId" : transaction_id_2,
                     "meterValue" : [
                         {
-                            "timestamp": "2024-06-20T13:10:02Z",
-                            "sampledValue" : [
+                            "timestamp": "2024-06-20T13:10:02.000Z",
+                            "sampledValues" : [
                                 {
                                     "value" : "980",
                                     "context" : "Transaction.Begin",
@@ -290,7 +289,6 @@ class TestMeterValues:
 
         charge_point.deinit()
 
-    @pytest.mark.xfail(reason="This feature is not yet implemented")
     def test_not_found(self, add_a_charging_point_to_the_database):
         charge_box_id = "CP002"
 
