@@ -53,6 +53,7 @@ class TestMeterValues:
 
         database.disconnect()
 
+    @pytest.mark.xfail(reason="This feature is not yet implemented")
     def test_successful(self, add_a_charging_point_to_the_database):
         charge_box_id = "CP001"
 
@@ -64,12 +65,12 @@ class TestMeterValues:
 
         charge_point.init()
 
-        connector_id = 1
+        connector_id_1 = 1
 
-        transaction_id_1 = charge_point.start_transaction_req(connector_id, id_tag)
+        transaction_id_1 = charge_point.start_transaction_req(connector_id_1, id_tag)
 
         charge_point.meter_values_req(
-            1, # Connector ID
+            connector_id_1,
             "2024-06-19T16:50:02Z", # Timestamp (ISO8601)
             "380", # Voltage Sample (V)
             "80", # Current Sample (A)
@@ -79,7 +80,7 @@ class TestMeterValues:
         )
 
         charge_point.meter_values_req(
-            1, # Connector ID
+            connector_id_1,
             "2024-06-19T16:55:02Z", # Timestamp (ISO8601)
             "382", # Voltage Sample (V)
             "100", # Current Sample (A)
@@ -89,7 +90,7 @@ class TestMeterValues:
         )
 
         charge_point.meter_values_req(
-            1, # Connector ID
+            connector_id_1,
             "2024-06-19T17:00:02Z", # Timestamp (ISO8601)
             "400", # Voltage Sample (V)
             "100", # Current Sample (A)
@@ -98,38 +99,38 @@ class TestMeterValues:
             transaction_id_1
         )
 
-        connector_id = 2
+        connector_id_2 = 2
 
-        transaction_id_2 = charge_point.start_transaction_req(connector_id, id_tag)
+        transaction_id_2 = charge_point.start_transaction_req(connector_id_2, id_tag)
 
         charge_point.meter_values_req(
-            2, # Connector ID
+            connector_id_2,
             "2024-06-20T13:00:02Z", # Timestamp (ISO8601)
             "1000", # Voltage Sample (V)
             "100", # Current Sample (A)
             "100000", # Power Sample (W)
             "30", # SoC Sample (%)
-            transaction_id_1
+            transaction_id_2
         )
 
         charge_point.meter_values_req(
-            2, # Connector ID
+            connector_id_2,
             "2024-06-20T13:05:02Z", # Timestamp (ISO8601)
             "982", # Voltage Sample (V)
             "92", # Current Sample (A)
             "90344", # Power Sample (W)
             "57", # SoC Sample (%)
-            transaction_id_1
+            transaction_id_2
         )
 
         charge_point.meter_values_req(
-            2, # Connector ID
+            connector_id_2,
             "2024-06-20T13:10:02Z", # Timestamp (ISO8601)
             "980", # Voltage Sample (V)
             "150", # Current Sample (A)
             "147000", # Power Sample (W)
             "72", # SoC Sample (%)
-            transaction_id_1
+            transaction_id_2
         )
 
         api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
@@ -147,7 +148,7 @@ class TestMeterValues:
         assert response.headers["Content-Type"] == "application/json"
 
         expected = {
-            "1": [
+            str(connector_id_1): [
                 {
                     "transactionId" : transaction_id_1,
                     "meterValue" : [
@@ -195,7 +196,7 @@ class TestMeterValues:
                     ]
                 }
             ],
-            "2": [
+            str(connector_id_2): [
                 {
                     "transactionId" : transaction_id_2,
                     "meterValue" : [
@@ -289,6 +290,7 @@ class TestMeterValues:
 
         charge_point.deinit()
 
+    @pytest.mark.xfail(reason="This feature is not yet implemented")
     def test_not_found(self, add_a_charging_point_to_the_database):
         charge_box_id = "CP002"
 
