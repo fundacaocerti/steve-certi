@@ -288,7 +288,7 @@ class ChargePointDummy:
         of the vehicle being recharged.
         @param transaction_id The transaction to which these meter samples are related.
         '''
-        voltage_samples = [
+        samples = [
             SampledValue(
                 value=voltage,
                 context=ReadingContext.transaction_begin.value,
@@ -297,10 +297,7 @@ class ChargePointDummy:
                 phase=Phase.l1.value,
                 location=Location.cable.value,
                 unit=Unit.v.value
-            )
-        ]
-
-        current_samples = [
+            ),
             SampledValue(
                 value=current,
                 context=ReadingContext.transaction_begin.value,
@@ -309,10 +306,7 @@ class ChargePointDummy:
                 phase=Phase.l1.value,
                 location=Location.cable.value,
                 unit=Unit.a.value
-            )
-        ]
-
-        power_samples = [
+            ),
             SampledValue(
                 value=power,
                 context=ReadingContext.transaction_begin.value,
@@ -321,10 +315,7 @@ class ChargePointDummy:
                 phase=Phase.l1.value,
                 location=Location.cable.value,
                 unit=Unit.w.value
-            )
-        ]
-
-        soc_samples = [
+            ),
             SampledValue(
                 value=soc,
                 context=ReadingContext.transaction_begin.value,
@@ -337,10 +328,7 @@ class ChargePointDummy:
         ]
 
         meter_values = [
-            MeterValue(self.timestamp(), voltage_samples),
-            MeterValue(self.timestamp(), current_samples),
-            MeterValue(self.timestamp(), power_samples),
-            MeterValue(self.timestamp(), soc_samples)
+            MeterValue(self.timestamp(), samples)
         ]
 
         payload = MeterValuesPayload(connector_id, transaction_id, meter_values)
