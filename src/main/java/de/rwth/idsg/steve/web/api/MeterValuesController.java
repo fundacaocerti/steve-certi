@@ -89,6 +89,7 @@ public class MeterValuesController {
         for (Integer transactionPk : transactionPks)
         {
             TransactionDetails details = transactionRepository.getDetails(transactionPk);    
+            log.debug("Parsing Transaction: {}", details.getTransaction().getId());
             Map<String, Object> transactionResponse = parseTransactionDetails(details);
             String transactionId = Integer.toString(details.getTransaction().getId());
             String connectorId = Integer.toString(details.getTransaction().getConnectorId());
@@ -102,26 +103,23 @@ public class MeterValuesController {
     private Map<String,Object> parseTransactionDetails(TransactionDetails details)
     {
         Map<String, Object> response = new HashMap<>();
-        Map<String,  List<TransactionDetails.MeterValues> > sampledValueList = new HashMap<>();
+        Map<String,  List<SampledValueCerti> > sampledValueMap = new HashMap<>();
         List<TransactionDetails.MeterValues> allTransactionMeterValues = details.getValues();
+
+        log.debug("Parsing connector: {}", details.getTransaction().getConnectorId());
         TransactionDetails.MeterValues latestMeterValue = getLatestMeterValue(allTransactionMeterValues);
-       
-        List<SampledValueCerti> meterValueSampledValues = getAllSamplesByLatestMeterValue(allTransactionMeterValues, latestMeterValue.getValueTimestamp());
+        List<SampledValueCerti> meterValueSampledValues = getAllSamplesByTimestamp(allTransactionMeterValues, latestMeterValue.getValueTimestamp());
+        sampledValueMap.put("sampledValue", meterValueSampledValues);
         response.put("transactionId", details.getTransaction().getId());
         response.put("timestamp", latestMeterValue.getValueTimestamp());
-        response.put("meterValue", meterValueSampledValues);
+        response.put("meterValue", sampledValueMap);
         return response;
     }
-    private List<SampledValueCerti> getAllSamplesByLatestMeterValue(List<TransactionDetails.MeterValues> meterValuesList, DateTime latestTimestamp)
+    private List<SampledValueCerti> getAllSamplesByTimestamp(List<TransactionDetails.MeterValues> meterValuesList, DateTime latestTimestamp)
     {
-         // Group MeterValues by valueTimestamp
-        Map<DateTime, List<TransactionDetails.MeterValues>> groupedByTimestamp = meterValuesList.stream()
-            .collect(Collectors.groupingBy(mv -> mv.getValueTimestamp()));
-
-        // Filter the groups to get only those with more than one MeterValues
-        List<TransactionDetails.MeterValues> matchingMeterValues = groupedByTimestamp.values().stream()
-            .filter(mvList -> mvList.size() > 1)
-            .flatMap(List::stream)
+        // Filter the groups to get only those with the timestamp
+        List<TransactionDetails.MeterValues> matchingMeterValues = meterValuesList.stream()
+            .filter(mv -> mv.getValueTimestamp().equals(latestTimestamp))
             .collect(Collectors.toList());
 
         List<SampledValueCerti> sampledValues = new ArrayList<SampledValueCerti>();
