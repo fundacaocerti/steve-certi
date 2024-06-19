@@ -26,6 +26,7 @@ import de.rwth.idsg.steve.web.api.ApiControllerAdvice.ApiErrorResponse;
 import de.rwth.idsg.steve.web.api.exception.BadRequestException;
 import de.rwth.idsg.steve.web.dto.TransactionQueryForm;
 import io.swagger.annotations.ApiResponse;
+import de.rwth.idsg.steve.repository.dto.SampledValueCerti;
 import de.rwth.idsg.steve.repository.dto.TransactionDetails;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -40,11 +41,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import java.util.Map;
 import javax.validation.Valid;
-import java.util.List;
-
+import java.util.Arrays;
+import java.util.Comparator;
+import org.joda.time.DateTime;
 import ocpp.cs._2015._10.RegistrationStatus;
 import java.util.ArrayList;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.HashMap;
 
@@ -93,15 +98,50 @@ public class MeterValuesController {
         return response;
     }
 
-    Map<String,Object> parseTransactionDetails(TransactionDetails details)
+
+    private Map<String,Object> parseTransactionDetails(TransactionDetails details)
     {
         Map<String, Object> response = new HashMap<>();
         Map<String,  List<TransactionDetails.MeterValues> > sampledValueList = new HashMap<>();
-        sampledValueList.put("sampledValue", details.getValues());
+        List<TransactionDetails.MeterValues> allTransactionMeterValues = details.getValues();
+        TransactionDetails.MeterValues latestMeterValue = getLatestMeterValue(allTransactionMeterValues);
+       
+        List<SampledValueCerti> meterValueSampledValues = getAllSamplesByLatestMeterValue(allTransactionMeterValues, latestMeterValue.getValueTimestamp());
         response.put("transactionId", details.getTransaction().getId());
-        response.put("meterValue", sampledValueList);
+        response.put("timestamp", latestMeterValue.getValueTimestamp());
+        response.put("meterValue", meterValueSampledValues);
         return response;
     }
+    private List<SampledValueCerti> getAllSamplesByLatestMeterValue(List<TransactionDetails.MeterValues> meterValuesList, DateTime latestTimestamp)
+    {
+         // Group MeterValues by valueTimestamp
+        Map<DateTime, List<TransactionDetails.MeterValues>> groupedByTimestamp = meterValuesList.stream()
+            .collect(Collectors.groupingBy(mv -> mv.getValueTimestamp()));
+
+        // Filter the groups to get only those with more than one MeterValues
+        List<TransactionDetails.MeterValues> matchingMeterValues = groupedByTimestamp.values().stream()
+            .filter(mvList -> mvList.size() > 1)
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+
+        List<SampledValueCerti> sampledValues = new ArrayList<SampledValueCerti>();
+        for(TransactionDetails.MeterValues meterValue: matchingMeterValues)
+        {
+            sampledValues.add(new SampledValueCerti(meterValue));
+        }
+        return sampledValues;
+    }
+    private TransactionDetails.MeterValues getLatestMeterValue(List<TransactionDetails.MeterValues> meterValuesList)
+    {
+        Optional<TransactionDetails.MeterValues> latestMeterValueQuery = meterValuesList.stream()
+            .max(Comparator.comparing(TransactionDetails.MeterValues::getValueTimestamp));
+        if (!latestMeterValueQuery.isPresent())
+        {
+            throw new SteveException.NotFound("Could not find meterValues");
+        }
+        return latestMeterValueQuery.get();
+    }
+
 
     private Optional<RegistrationStatus> getRegistrationStatus(String chargeBoxId) {
         return getChargePointHelpService().getRegistrationStatus(chargeBoxId);
