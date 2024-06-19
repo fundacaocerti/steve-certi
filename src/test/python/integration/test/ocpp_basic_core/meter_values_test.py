@@ -118,11 +118,7 @@ class TestMeterValues:
                                     "phase" : "L1",
                                     "location" : "Cable",
                                     "unit" : "V"
-                                }
-                            ]
-                        },
-                        {
-                            "sampledValue" : [
+                                },
                                 {
                                     "value" : "80",
                                     "context" : "Transaction.Begin",
@@ -131,11 +127,7 @@ class TestMeterValues:
                                     "phase" : "L1",
                                     "location" : "Cable",
                                     "unit" : "A"
-                                }
-                            ]
-                        },
-                        {
-                            "sampledValue" : [
+                                },
                                 {
                                     "value" : "30400",
                                     "context" : "Transaction.Begin",
@@ -144,11 +136,7 @@ class TestMeterValues:
                                     "phase" : "L1",
                                     "location" : "Cable",
                                     "unit" : "W"
-                                }
-                            ]
-                        },
-                        {
-                            "sampledValue" : [
+                                },
                                 {
                                     "value" : "25",
                                     "context" : "Transaction.Begin",
@@ -177,11 +165,7 @@ class TestMeterValues:
                                     "phase" : "L1",
                                     "location" : "Cable",
                                     "unit" : "V"
-                                }
-                            ]
-                        },
-                        {
-                            "sampledValue" : [
+                                },
                                 {
                                     "value" : "110",
                                     "context" : "Transaction.Begin",
@@ -190,11 +174,7 @@ class TestMeterValues:
                                     "phase" : "L1",
                                     "location" : "Cable",
                                     "unit" : "A"
-                                }
-                            ]
-                        },
-                        {
-                            "sampledValue" : [
+                                },
                                 {
                                     "value" : "99000",
                                     "context" : "Transaction.Begin",
@@ -203,11 +183,7 @@ class TestMeterValues:
                                     "phase" : "L1",
                                     "location" : "Cable",
                                     "unit" : "W"
-                                }
-                            ]
-                        },
-                        {
-                            "sampledValue" : [
+                                },
                                 {
                                     "value" : "35",
                                     "context" : "Transaction.Begin",
@@ -227,9 +203,7 @@ class TestMeterValues:
         outcome = response.json()
 
         for i in range(1,3):
-            for j in range(0,4):
-                assert outcome[str(i)][0]["meterValue"][j].pop("timestamp") \
-                    is not None
+            assert outcome[str(i)][0]["meterValue"][0].pop("timestamp") is not None
 
         assert outcome == expected
 
