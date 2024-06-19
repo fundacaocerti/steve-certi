@@ -53,10 +53,7 @@ class TestMeterValues:
 
         database.disconnect()
 
-    @pytest.mark.xfail
     def test_successful(self, add_a_charging_point_to_the_database):
-        pytest.xfail("This feature is not yet implemented")
-
         charge_box_id = "CP001"
 
         id_tag = "TAG001"
@@ -71,23 +68,69 @@ class TestMeterValues:
 
         transaction_id_1 = charge_point.start_transaction_req(connector_id, id_tag)
 
-        voltage = "380" # V
-        current = "80" # A
-        power = "30400" # W
-        soc = "25" # %
+        charge_point.meter_values_req(
+            1, # Connector ID
+            "2024-06-19T16:50:02Z", # Timestamp (ISO8601)
+            "380", # Voltage Sample (V)
+            "80", # Current Sample (A)
+            "30400", # Power Sample (W)
+            "25", # SoC Sample (%)
+            transaction_id_1
+        )
 
-        charge_point.meter_values_req(connector_id, voltage, current, power, soc, transaction_id_1)
+        charge_point.meter_values_req(
+            1, # Connector ID
+            "2024-06-19T16:55:02Z", # Timestamp (ISO8601)
+            "382", # Voltage Sample (V)
+            "100", # Current Sample (A)
+            "38200", # Power Sample (W)
+            "35", # SoC Sample (%)
+            transaction_id_1
+        )
+
+        charge_point.meter_values_req(
+            1, # Connector ID
+            "2024-06-19T17:00:02Z", # Timestamp (ISO8601)
+            "400", # Voltage Sample (V)
+            "100", # Current Sample (A)
+            "40000", # Power Sample (W)
+            "55", # SoC Sample (%)
+            transaction_id_1
+        )
 
         connector_id = 2
 
         transaction_id_2 = charge_point.start_transaction_req(connector_id, id_tag)
 
-        voltage = "900" # V
-        current = "110" # A
-        power = "99000" # W
-        soc = "35" # %
+        charge_point.meter_values_req(
+            2, # Connector ID
+            "2024-06-20T13:00:02Z", # Timestamp (ISO8601)
+            "1000", # Voltage Sample (V)
+            "100", # Current Sample (A)
+            "100000", # Power Sample (W)
+            "30", # SoC Sample (%)
+            transaction_id_1
+        )
 
-        charge_point.meter_values_req(connector_id, voltage, current, power, soc, transaction_id_2)
+        charge_point.meter_values_req(
+            2, # Connector ID
+            "2024-06-20T13:05:02Z", # Timestamp (ISO8601)
+            "982", # Voltage Sample (V)
+            "92", # Current Sample (A)
+            "90344", # Power Sample (W)
+            "57", # SoC Sample (%)
+            transaction_id_1
+        )
+
+        charge_point.meter_values_req(
+            2, # Connector ID
+            "2024-06-20T13:10:02Z", # Timestamp (ISO8601)
+            "980", # Voltage Sample (V)
+            "150", # Current Sample (A)
+            "147000", # Power Sample (W)
+            "72", # SoC Sample (%)
+            transaction_id_1
+        )
 
         api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
 
@@ -109,48 +152,37 @@ class TestMeterValues:
                     "transactionId" : transaction_id_1,
                     "meterValue" : [
                         {
+                            "timestamp": "2024-06-19T17:00:02Z",
                             "sampledValue" : [
                                 {
-                                    "value" : "380",
+                                    "value" : "400",
                                     "context" : "Transaction.Begin",
                                     "format" : "Raw",
                                     "measurand": "Voltage",
                                     "phase" : "L1",
                                     "location" : "Cable",
                                     "unit" : "V"
-                                }
-                            ]
-                        },
-                        {
-                            "sampledValue" : [
+                                },
                                 {
-                                    "value" : "80",
+                                    "value" : "100",
                                     "context" : "Transaction.Begin",
                                     "format" : "SignedData",
                                     "measurand" : "Current.Import",
                                     "phase" : "L1",
                                     "location" : "Cable",
                                     "unit" : "A"
-                                }
-                            ]
-                        },
-                        {
-                            "sampledValue" : [
+                                },
                                 {
-                                    "value" : "30400",
+                                    "value" : "40000",
                                     "context" : "Transaction.Begin",
                                     "format" : "Raw",
                                     "measurand" : "Power.Active.Import",
                                     "phase" : "L1",
                                     "location" : "Cable",
                                     "unit" : "W"
-                                }
-                            ]
-                        },
-                        {
-                            "sampledValue" : [
+                                },
                                 {
-                                    "value" : "25",
+                                    "value" : "55",
                                     "context" : "Transaction.Begin",
                                     "format" : "Raw",
                                     "measurand" : "SoC",
@@ -168,48 +200,37 @@ class TestMeterValues:
                     "transactionId" : transaction_id_2,
                     "meterValue" : [
                         {
+                            "timestamp": "2024-06-20T13:10:02Z",
                             "sampledValue" : [
                                 {
-                                    "value" : "900",
+                                    "value" : "980",
                                     "context" : "Transaction.Begin",
                                     "format" : "Raw",
                                     "measurand" : "Voltage",
                                     "phase" : "L1",
                                     "location" : "Cable",
                                     "unit" : "V"
-                                }
-                            ]
-                        },
-                        {
-                            "sampledValue" : [
+                                },
                                 {
-                                    "value" : "110",
+                                    "value" : "150",
                                     "context" : "Transaction.Begin",
                                     "format" : "SignedData",
                                     "measurand" : "Current.Import",
                                     "phase" : "L1",
                                     "location" : "Cable",
                                     "unit" : "A"
-                                }
-                            ]
-                        },
-                        {
-                            "sampledValue" : [
+                                },
                                 {
-                                    "value" : "99000",
+                                    "value" : "147000",
                                     "context" : "Transaction.Begin",
                                     "format" : "Raw",
                                     "measurand" : "Power.Active.Import",
                                     "phase" : "L1",
                                     "location" : "Cable",
                                     "unit" : "W"
-                                }
-                            ]
-                        },
-                        {
-                            "sampledValue" : [
+                                },
                                 {
-                                    "value" : "35",
+                                    "value" : "72",
                                     "context" : "Transaction.Begin",
                                     "format" : "Raw",
                                     "measurand" : "SoC",
@@ -225,11 +246,6 @@ class TestMeterValues:
         }
 
         outcome = response.json()
-
-        for i in range(1,3):
-            for j in range(0,4):
-                assert outcome[str(i)][0]["meterValue"][j].pop("timestamp") \
-                    is not None
 
         assert outcome == expected
 
@@ -273,10 +289,7 @@ class TestMeterValues:
 
         charge_point.deinit()
 
-    @pytest.mark.xfail
     def test_not_found(self, add_a_charging_point_to_the_database):
-        pytest.xfail("This feature is not yet implemented")
-
         charge_box_id = "CP002"
 
         api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
