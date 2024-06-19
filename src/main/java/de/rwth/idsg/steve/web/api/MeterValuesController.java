@@ -26,6 +26,7 @@ import de.rwth.idsg.steve.web.api.ApiControllerAdvice.ApiErrorResponse;
 import de.rwth.idsg.steve.web.api.exception.BadRequestException;
 import de.rwth.idsg.steve.web.dto.TransactionQueryForm;
 import io.swagger.annotations.ApiResponse;
+import de.rwth.idsg.steve.repository.dto.MeterValueCerti;
 import de.rwth.idsg.steve.repository.dto.SampledValueCerti;
 import de.rwth.idsg.steve.repository.dto.TransactionDetails;
 import io.swagger.annotations.ApiResponses;
@@ -80,11 +81,11 @@ public class MeterValuesController {
     )
     @GetMapping(value ="/{chargeBoxId}")
     @ResponseBody
-    public Map <String, Map<String, Object>> get(@PathVariable("chargeBoxId") String chargeBoxId) {
+    public Map <String,List<Map<String, Object>>> get(@PathVariable("chargeBoxId") String chargeBoxId) {
         if (getRegistrationStatus(chargeBoxId).isEmpty()) {
             throw new SteveException.NotFound("Could not find this chargeBoxId");
         }
-        Map <String, Map<String, Object>> response = new HashMap<>();
+        Map <String,List<Map<String, Object>>> response = new HashMap<>();
         List<Integer> transactionPks = transactionRepository.getLastConnectorTransactions(chargeBoxId);
         for (Integer transactionPk : transactionPks)
         {
@@ -93,7 +94,9 @@ public class MeterValuesController {
             Map<String, Object> transactionResponse = parseTransactionDetails(details);
             String transactionId = Integer.toString(details.getTransaction().getId());
             String connectorId = Integer.toString(details.getTransaction().getConnectorId());
-            response.put(connectorId, transactionResponse);
+            List<Map<String, Object>> transactionList = new ArrayList<Map<String, Object>>();
+            transactionList.add(transactionResponse);
+            response.put(connectorId, transactionList);
         }
         log.debug("Read response for query: {}", response);
         return response;
@@ -105,14 +108,13 @@ public class MeterValuesController {
         Map<String, Object> response = new HashMap<>();
         Map<String,  List<SampledValueCerti> > sampledValueMap = new HashMap<>();
         List<TransactionDetails.MeterValues> allTransactionMeterValues = details.getValues();
-
-        log.debug("Parsing connector: {}", details.getTransaction().getConnectorId());
         TransactionDetails.MeterValues latestMeterValue = getLatestMeterValue(allTransactionMeterValues);
         List<SampledValueCerti> meterValueSampledValues = getAllSamplesByTimestamp(allTransactionMeterValues, latestMeterValue.getValueTimestamp());
-        sampledValueMap.put("sampledValue", meterValueSampledValues);
         response.put("transactionId", details.getTransaction().getId());
-        response.put("timestamp", latestMeterValue.getValueTimestamp());
-        response.put("meterValue", sampledValueMap);
+        List<MeterValueCerti> meterValueList = new ArrayList<MeterValueCerti>();
+        MeterValueCerti meterValueResponse = new MeterValueCerti(latestMeterValue.getValueTimestamp(), meterValueSampledValues);
+        meterValueList.add(meterValueResponse);
+        response.put("meterValue", meterValueList);
         return response;
     }
     private List<SampledValueCerti> getAllSamplesByTimestamp(List<TransactionDetails.MeterValues> meterValuesList, DateTime latestTimestamp)

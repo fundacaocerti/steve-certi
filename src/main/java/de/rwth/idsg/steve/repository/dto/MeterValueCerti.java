@@ -24,7 +24,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
-
+import de.rwth.idsg.steve.repository.dto.SampledValueCerti;
 import de.rwth.idsg.steve.repository.dto.TransactionDetails;
 import java.util.List;
 
@@ -33,22 +33,13 @@ import java.util.List;
  * @since 27.04.2016
  */
 @Getter
-public class SampledValueCerti {
-    private final String value, context, format, measurand, location, unit;
-
-    // New in OCPP 1.6
-    private final String phase;
-
-    public SampledValueCerti(TransactionDetails.MeterValues meterValuesSteve)
+public class MeterValueCerti {
+    private final DateTime timestamp;
+    private final List<SampledValueCerti> sampledValues;
+    public MeterValueCerti(DateTime timestampValue, List<SampledValueCerti> sampledValuesList)
     {
-        value = meterValuesSteve.getValue();
-        context = meterValuesSteve.getReadingContext();
-        format = meterValuesSteve.getFormat();
-        measurand = meterValuesSteve.getMeasurand();
-        location = meterValuesSteve.getLocation();
-        unit = meterValuesSteve.getUnit();
-        phase = meterValuesSteve.getPhase();
-
+        timestamp = timestampValue;
+        sampledValues = sampledValuesList;
     }
     
 }
