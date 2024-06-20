@@ -28,10 +28,6 @@ import de.rwth.idsg.steve.repository.dto.SampledValueCerti;
 import de.rwth.idsg.steve.repository.dto.TransactionDetails;
 import java.util.List;
 
-/**
- * @author Sevket Goekay <sevketgokay@gmail.com>
- * @since 27.04.2016
- */
 @Getter
 public class MeterValueCerti {
     private final DateTime timestamp;

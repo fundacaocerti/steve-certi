@@ -54,10 +54,6 @@ import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.HashMap;
 
-/**
- * @author Sevket Goekay <sevketgokay@gmail.com>
- * @since 13.09.2022
- */
 @Slf4j
 @RestController
 @RequestMapping(value = "/api/v0/core/meterValues", produces = MediaType.APPLICATION_JSON_VALUE)

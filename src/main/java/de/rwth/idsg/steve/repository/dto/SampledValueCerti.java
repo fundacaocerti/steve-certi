@@ -28,10 +28,6 @@ import org.joda.time.DateTime;
 import de.rwth.idsg.steve.repository.dto.TransactionDetails;
 import java.util.List;
 
-/**
- * @author Sevket Goekay <sevketgokay@gmail.com>
- * @since 27.04.2016
- */
 @Getter
 public class SampledValueCerti {
     private final String value, context, format, measurand, location, unit;
