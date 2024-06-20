@@ -269,6 +269,8 @@ class TestMeterValues:
 
         charge_point.stop_transaction_req(transaction_id_2, id_tag)
 
+        charge_point.stop_transaction_req(transaction_id_3, id_tag)         
+
         charge_point.deinit()
 
     def test_unauthorized(self, add_a_charging_point_to_the_database):
