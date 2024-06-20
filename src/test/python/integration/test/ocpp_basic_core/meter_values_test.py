@@ -145,7 +145,7 @@ class TestMeterValues:
             "150", # Current Sample (A)
             "147000", # Power Sample (W)
             "72", # SoC Sample (%)
-            transaction_id_2
+            transaction_id_3
         )
 
 
@@ -268,6 +268,8 @@ class TestMeterValues:
         charge_point.stop_transaction_req(transaction_id_1, id_tag)
 
         charge_point.stop_transaction_req(transaction_id_2, id_tag)
+
+        charge_point.stop_transaction_req(transaction_id_3, id_tag)         
 
         charge_point.deinit()
 

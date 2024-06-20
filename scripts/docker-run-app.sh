@@ -7,7 +7,7 @@
 NC="\033[0m"
 RED="\033[1;31m"
 
-IMAGE="steve-certi-app-img"
+IMAGE="registry.certi.org.br/cdm/mobeq2/steve-certi-app" 
 
 IMAGE_TAG="latest"
 
