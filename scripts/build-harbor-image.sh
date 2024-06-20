@@ -4,8 +4,8 @@
 # * All rights reserved.
 # *******************************************************************************/
 
-IMAGE="registry.certi.org.br/cdm/mobeq2/steve-certi-app:latest"
+IMAGE="steve-certi-app-img"
 
-DOCKERFILE="docker/Dockerfile.app"
+DOCKERFILE="docker/Dockerfile-prod.app"
 
 docker build -t ${IMAGE} -f ${DOCKERFILE} .

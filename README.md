@@ -1,4 +1,50 @@
-![SteVe](src/main/resources/webapp/static/images/logo.png) 
+![SteVe Certi](src/main/resources/webapp/static/images/logo.png) 
+
+# Instruções CERTI
+
+Para desenvolver a aplicação, utilize o seguinte trecho:
+```
+./scripts/docker-build-app.sh && \
+./scripts/docker-build-db.sh && \
+./scripts/docker-run-app.sh && \
+./scripts/docker-run-db.sh && \
+./scripts/docker-exec-app.sh
+```
+
+Também é possível subir o ambiente de dev através um snapshot de um repositorio de imagens docker, incluindo as dependencias do Java:
+
+```
+./scripts/run-dev-environment.sh
+```
+
+Ao entrar no container, execute os comandos:
+
+```
+root@44e6feb18624:/code# build && run
+```
+
+O servidor irá rodar em http://localhost:8180
+
+Para abrir outro terminal no container, utilize:
+```
+./scripts/docker-exec-app.sh 
+```
+
+Para executar os testes de integração:
+
+```
+root@44e6feb18624:/code# build && run
+```
+em outro terminal:
+```
+ root@44e6feb18624:/code# integration-test-runner
+```
+
+Para subir em produção, observe os scripts `./scripts/run-webserver.sh`.
+Isso dependerá da imagem Steve disponivel para o arquivo `docker-compose-production.yml`. Atualmente é feito build direto no servidor de produção.
+
+O script run-webserver está configurado para subir um servidor NGINX que roteia uma instancia do SWAGGER com a especificação em `http://localhost/docs`
+Steve também se encontrará na porta 80 devido ao NGINX em http://localhost
 
 [![build and run tests](https://github.com/steve-community/steve/actions/workflows/main.yml/badge.svg)](https://github.com/steve-community/steve/actions/workflows/main.yml)
 
