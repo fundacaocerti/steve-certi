@@ -145,7 +145,7 @@ class TestMeterValues:
             "150", # Current Sample (A)
             "147000", # Power Sample (W)
             "72", # SoC Sample (%)
-            transaction_id_2
+            transaction_id_3
         )
 
 
