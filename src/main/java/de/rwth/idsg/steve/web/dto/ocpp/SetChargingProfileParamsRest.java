@@ -1,6 +1,6 @@
 /*
  * SteVe - SteckdosenVerwaltung - https://github.com/steve-community/steve
- * Copyright (C) 2013-2024 SteVe Community Team
+ * Copyright (C) 2024 Fundação CERTI
  * All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,27 +16,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package de.rwth.idsg.steve.repository;
 
-import de.rwth.idsg.steve.repository.dto.Transaction;
-import de.rwth.idsg.steve.repository.dto.TransactionDetails;
-import de.rwth.idsg.steve.web.dto.TransactionQueryForm;
+package de.rwth.idsg.steve.web.dto.ocpp;
 
-import java.io.Writer;
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * @author Sevket Goekay <sevketgokay@gmail.com>
- * @since 19.08.2014
- */
-public interface TransactionRepository {
-    List<Transaction> getTransactions(TransactionQueryForm form);
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
-    void writeTransactionsCSV(TransactionQueryForm form, Writer writer);
+@Setter
+@Getter
+public class SetChargingProfileParamsRest {
 
-    List<Integer> getActiveTransactionIds(String chargeBoxId);
+    @NotNull
+    @Min(value = 0, message = "Connector ID must be at least {value}")
+    private Integer connectorId;
 
-    List<Integer> getLastConnectorTransactions(String chargeBoxId);
-
-    TransactionDetails getDetails(int transactionPk);
+    @NotNull
+    @Positive
+    private Integer chargingProfileId;
 }
