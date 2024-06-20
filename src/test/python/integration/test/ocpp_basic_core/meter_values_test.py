@@ -9,7 +9,7 @@ from app_dummy import AppDummy
 from enums import HttpResponseStatusCodeType
 from charge_point_dummy import ChargePointDummy
 from db_helper import DatabaseHelper
-
+import time 
 class TestMeterValues:
     @property
     def operation(self) -> str:
@@ -54,6 +54,9 @@ class TestMeterValues:
         database.disconnect()
 
     def test_successful(self, add_a_charging_point_to_the_database):
+        """
+        Must show only the latest transaction which includes the relevant meter value.
+        """
         charge_box_id = "CP001"
 
         id_tag = "TAG001"
@@ -132,6 +135,20 @@ class TestMeterValues:
             transaction_id_2
         )
 
+        transaction_id_3 = charge_point.start_transaction_req(connector_id_2, id_tag)
+
+
+        charge_point.meter_values_req(
+            connector_id_2,
+            "2025-06-20T13:10:02Z", # Timestamp (ISO8601)
+            "969", # Voltage Sample (V)
+            "150", # Current Sample (A)
+            "147000", # Power Sample (W)
+            "72", # SoC Sample (%)
+            transaction_id_2
+        )
+
+
         api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
 
         app = AppDummy(self.operation, api_host)
@@ -141,7 +158,6 @@ class TestMeterValues:
         app.headers = {"api-key":"certi"}
 
         response = app.request()
-
         assert response.status_code == HttpResponseStatusCodeType.OK
 
         assert response.headers["Content-Type"] == "application/json"
@@ -197,13 +213,13 @@ class TestMeterValues:
             ],
             str(connector_id_2): [
                 {
-                    "transactionId" : transaction_id_2,
+                    "transactionId" : transaction_id_3,
                     "meterValue" : [
                         {
-                            "timestamp": "2024-06-20T13:10:02.000Z",
+                            "timestamp": "2025-06-20T13:10:02.000Z",
                             "sampledValues" : [
                                 {
-                                    "value" : "980",
+                                    "value" : "969",
                                     "context" : "Transaction.Begin",
                                     "format" : "Raw",
                                     "measurand" : "Voltage",
