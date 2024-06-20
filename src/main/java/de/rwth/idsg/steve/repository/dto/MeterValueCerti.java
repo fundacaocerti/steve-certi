@@ -16,27 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package de.rwth.idsg.steve.repository;
+package de.rwth.idsg.steve.repository.dto;
 
-import de.rwth.idsg.steve.repository.dto.Transaction;
+import jooq.steve.db.tables.records.TransactionStartRecord;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
+import org.joda.time.DateTime;
+import de.rwth.idsg.steve.repository.dto.SampledValueCerti;
 import de.rwth.idsg.steve.repository.dto.TransactionDetails;
-import de.rwth.idsg.steve.web.dto.TransactionQueryForm;
-
-import java.io.Writer;
 import java.util.List;
 
-/**
- * @author Sevket Goekay <sevketgokay@gmail.com>
- * @since 19.08.2014
- */
-public interface TransactionRepository {
-    List<Transaction> getTransactions(TransactionQueryForm form);
-
-    void writeTransactionsCSV(TransactionQueryForm form, Writer writer);
-
-    List<Integer> getActiveTransactionIds(String chargeBoxId);
-
-    List<Integer> getLastConnectorTransactions(String chargeBoxId);
-
-    TransactionDetails getDetails(int transactionPk);
+@Getter
+public class MeterValueCerti {
+    private final DateTime timestamp;
+    private final List<SampledValueCerti> sampledValues;
+    public MeterValueCerti(DateTime timestampValue, List<SampledValueCerti> sampledValuesList)
+    {
+        timestamp = timestampValue;
+        sampledValues = sampledValuesList;
+    }
+    
 }
