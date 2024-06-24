@@ -263,15 +263,61 @@ class TestMeterValues:
 
         outcome = response.json()
 
-        assert outcome == expected
-
         charge_point.stop_transaction_req(transaction_id_1, id_tag)
 
         charge_point.stop_transaction_req(transaction_id_2, id_tag)
 
-        charge_point.stop_transaction_req(transaction_id_3, id_tag)         
+        charge_point.stop_transaction_req(transaction_id_3, id_tag)
 
         charge_point.deinit()
+        assert outcome == expected
+   
+
+    def test_successful_empty(self, add_a_charging_point_to_the_database):
+        """
+        Must show only the latest transaction which includes the relevant meter value.
+        """
+        charge_box_id = "CP001"
+
+        id_tag = "TAG001"
+
+        uri = f"{self.websocket_endpoint}/{charge_box_id}"
+
+        charge_point = ChargePointDummy(uri)
+        charge_point.init()
+        connector_id_1 = 1 
+        transaction_id_1 = charge_point.start_transaction_req(connector_id_1, id_tag)
+        api_host = f"/{self.base_path}/{self.path}/{charge_box_id}"
+        expected = {
+            connector_id_1: [
+                {
+                    "meterValue": [
+                        {
+                            "timestamp": None,
+                            "sampledValues": []
+                        }
+                    ],
+                    "transactionId": transaction_id_1
+                }
+            ]
+        }
+
+        app = AppDummy(self.operation, api_host)
+
+        app.headers = {"Content-Type":"application/json"}
+
+        app.headers = {"api-key":"certi"}
+
+        response = app.request()
+
+        charge_point.stop_transaction_req(transaction_id_1, id_tag)
+
+        charge_point.deinit()
+        assert response.status_code == HttpResponseStatusCodeType.OK
+
+        assert response.headers["Content-Type"] == "application/json"
+        outcome = response.json()
+
 
     def test_unauthorized(self, add_a_charging_point_to_the_database):
         charge_box_id = "CP001"
@@ -301,11 +347,11 @@ class TestMeterValues:
 
         outcome = response.json()
 
+        charge_point.deinit()
         assert outcome.pop("timestamp") is not None
 
         assert outcome == expected
 
-        charge_point.deinit()
 
     def test_not_found(self, add_a_charging_point_to_the_database):
         charge_box_id = "CP002"
