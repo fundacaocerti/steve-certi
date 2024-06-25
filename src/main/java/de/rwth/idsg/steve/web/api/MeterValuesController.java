@@ -133,7 +133,8 @@ public class MeterValuesController {
             .max(Comparator.comparing(TransactionDetails.MeterValues::getValueTimestamp));
         if (!latestMeterValueQuery.isPresent())
         {
-            throw new SteveException.NotFound("Could not find meterValues");
+            TransactionDetails.MeterValues defaultNullMeterValues = TransactionDetails.MeterValues.builder().build();
+            return defaultNullMeterValues;
         }
         return latestMeterValueQuery.get();
     }

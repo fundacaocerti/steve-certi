@@ -39,6 +39,7 @@ import org.jooq.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.io.Writer;
 import java.util.List;
 
@@ -88,13 +89,27 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     }
 
     public List<Integer> getLastConnectorTransactions(String chargeBoxId) {
-        return ctx.select(TRANSACTION.TRANSACTION_PK)
+        List<Integer> connectorsList = ctx.select(CONNECTOR.CONNECTOR_PK)
+                                        .from(CONNECTOR)
+                                        .where(CONNECTOR.CHARGE_BOX_ID.equal(chargeBoxId))
+                                        .fetch(CONNECTOR.CONNECTOR_PK);
+        List<Integer> transactionKeys = new ArrayList<Integer>();
+
+        for(Integer connectorPk : connectorsList)
+        {
+            List<Integer> transactionKeyTemp = ctx.select(TRANSACTION.TRANSACTION_PK)
                   .from(TRANSACTION)
                   .join(CONNECTOR)
-                    .on(TRANSACTION.CONNECTOR_PK.equal(CONNECTOR.CONNECTOR_PK))
-                    .and(CONNECTOR.CHARGE_BOX_ID.equal(chargeBoxId))
+                    .on(TRANSACTION.CONNECTOR_PK.equal(connectorPk))
                     .orderBy(TRANSACTION.TRANSACTION_PK.desc())
+                    .limit(1)
                   .fetch(TRANSACTION.TRANSACTION_PK);
+            if (transactionKeyTemp.size() == 0)
+                continue;
+            transactionKeys.add(transactionKeyTemp.get(0));
+        }
+
+        return transactionKeys;
     }
 
     @Override
