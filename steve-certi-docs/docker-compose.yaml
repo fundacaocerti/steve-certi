@@ -1,0 +1,10 @@
+services:
+  steve-certi-swagger-ui:
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+  swagger-editor:
+    image: swaggerapi/swagger-editor
+    ports:
+      - 7000:8080

@@ -1,0 +1,749 @@
+openapi: '3.0.2'
+
+info:
+  title: SteVe-CERTI REST API Documentation
+  description: Adds additional functionality to the Rest API for programmatic external access
+  license:
+    name: GPL-3.0
+    url: https://github.com/steve-community/steve/blob/master/LICENSE.txt
+  version: 'v1.1'
+
+servers:
+  - url: http://177.71.116.28
+  - url: http://localhost
+
+tags:
+  - name: ocpp-basic-core
+    description: Basic charging point functionality without support for firmware updates, local authorization list management and reservations
+  - name: ocpp-smart-charging
+    description: Support for basic smart charging, for instance using control pilot
+  - name: ocpp-task-manager
+    description: Support for keeping track and managing ongoing SteVe operations (tasks)
+
+paths:
+  /steve/api/v0/smartCharging/chargingProfile:
+    get:
+      security:
+        - TokenAuth: []
+      tags:
+        - ocpp-smart-charging
+      summary: Get all charging profiles in the StevE database
+      operationId: getChargingProfileId
+      description: This will fetch a limited representation of the available charging profiles in the database.
+      responses:
+            '200':
+              description: OK
+              content:
+                application/json:
+                  schema:
+                      $ref: '#/components/schemas/ChargingProfileList'
+    post:
+      security:
+        - TokenAuth: []
+      tags:
+        - ocpp-smart-charging
+      summary: Add a charging profile to the StevE database
+      operationId: addChargingProfileId
+      description: This will create a charging profile in the SteVe database. Note that the `chargingProfilePurpose` field will dictate the body format for this endpoint. For the purpose of a `TX_PROFILE` , there will be no `validFrom` or `validTo` fields as this purpose refers to a single charging session. Further examples are as follows. For more information, consult the OCPP 1.6 standard.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/chargingProfileBody'
+            examples:
+              example1:
+                summary: Basic Charging Profile
+                value:
+                  description: Standard charging profile for a day
+                  note: Default profile
+                  stackLevel: 1
+                  chargingProfilePurpose: TX_PROFILE
+                  chargingProfileKind: RECURRING
+                  recurrencyKind: DAILY
+                  durationInSeconds: 7200
+                  startSchedule: 2024-05-20T08:00:00
+                  chargingRateUnit: A
+                  minChargingRate: 5
+                  schedulePeriodMap: 
+                    period1: 
+                      startPeriodInSeconds: 0
+                      powerLimit: 30
+                      numberPhases: 3
+                    period2: 
+                      startPeriodInSeconds: 3600
+                      powerLimit: 40
+                      numberPhases: 3
+              example2:
+                summary: Weekly Charging Profile
+                value:
+                  description: Weekly charging schedule
+                  note: Weekly profile
+                  stackLevel: 2
+                  chargingProfilePurpose: CHARGE_POINT_MAX_PROFILE
+                  chargingProfileKind: ABSOLUTE
+                  recurrencyKind: WEEKLY
+                  validFrom: 2024-05-20T00:00:00
+                  validTo: 2024-06-20T00:00:00
+                  durationInSeconds: 10800
+                  startSchedule: 2024-05-21T09:00:00
+                  chargingRateUnit: W
+                  minChargingRate: 15
+                  schedulePeriodMap: 
+                    period1: 
+                      startPeriodInSeconds: 0
+                      powerLimit: 50
+                      numberPhases: 1
+                    period2: 
+                      startPeriodInSeconds: 5400
+                      powerLimit: 60
+                      numberPhases: 1
+              example3:
+                summary: High Power Charging Profile
+                value:
+                  description: High power charging for special cases
+                  note: Temporary high power
+                  stackLevel: 3
+                  chargingProfilePurpose: TX_PROFILE
+                  chargingProfileKind: ABSOLUTE
+                  recurrencyKind: DAILY
+                  validFrom: 2024-05-25T00:00:00
+                  validTo: 2024-05-26T00:00:00
+                  durationInSeconds: 5400
+                  startSchedule: 2024-05-25T11:00:00
+                  chargingRateUnit: W
+                  minChargingRate: 20
+                  schedulePeriodMap: 
+                    period1: 
+                      startPeriodInSeconds: 0
+                      powerLimit: 70
+                      numberPhases: 2
+                    period2: 
+                      startPeriodInSeconds: 2700
+                      powerLimit: 80
+                      numberPhases: 2
+
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/addChargingProfileResponse'
+        '400':
+          description: Body format error
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/addChargingProfileError'
+
+  /steve/api/v0/smartCharging/chargingProfile/{chargingProfileId}:
+    delete:
+      security:
+        - TokenAuth: []
+      tags:
+        - ocpp-smart-charging
+      summary: Remove a charging profile for the StevE database.
+      operationId: deleteChargingProfileId
+      parameters:
+        - name: chargingProfileId
+          in: path
+          description: Use the primary key of the Charging Profile table to remove an existing profile. It is acquired on return from the add operation
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/deleteChargingProfileResponse'
+
+  /steve/api/v0/smartCharging/setChargingProfile/{chargeBoxId}:
+    post:
+      security:
+        - TokenAuth: []
+      tags:
+        - ocpp-smart-charging
+      summary: Forward the OCPP message called setChargingProfile to the station identified by chargeBoxId
+      operationId: setChargingProfileId
+      parameters:
+        - name: chargeBoxId
+          in: path
+          description: The identifier of the chargebox (i.e. charging station)
+          required: true
+          style: simple
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/setChargingProfile'
+       
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/setChargingProfileResponse'
+
+  /steve/api/v0/smartCharging/clearChargingProfile/{chargeBoxId}:
+    post:
+      security:
+        - TokenAuth: []
+      tags:
+        - ocpp-smart-charging
+      summary: Forward the OCPP message called clearChargingProfile to the station identified by chargeBoxId
+      description: Clear a charging profile of given `id` from a `chargeBox` of a given `chargeBoxId`. The charging profile purpose and stackLevel must be identified to ensure only the correct charging profiles are cleared.
+      operationId: clearChargingProfileId
+      parameters:
+        - name: chargeBoxId
+          in: path
+          description: The identifier of the chargebox (i.e. charging station)
+          required: true
+          style: simple
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/clearChargingProfile'
+            examples:
+              example1:
+                summary: Default Profile Example
+                value:
+                    id: 1
+                    connectorId: 1
+                    chargingProfilePurpose: TX_DEFAULT_PROFILE
+                    stackLevel: 0
+              example2:
+                summary: Charge Point Max Profile
+                value:
+                    id: 1
+                    connectorId: 1
+                    chargingProfilePurpose: CHARGE_POINT_MAX_PROFILE
+                    stackLevel: 1
+              example3:
+                summary: TX Profile
+                value:
+                    id: 1
+                    connectorId: 1
+                    chargingProfilePurpose: TX_PROFILE
+                    stackLevel: 2
+       
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/clearChargingProfileResponse'
+
+  /steve/api/v0/core/bootNotification/{chargeBoxId}:
+    get:
+      security:
+        - TokenAuth: []
+      tags:
+        - ocpp-basic-core
+      summary: Enables the acquisition of boot information from the charging station identified by the `chargeBoxId` attribute
+      operationId: bootNotificationId
+      parameters:
+        - name: chargeBoxId
+          in: path
+          description: The identifier of the chargebox (i.e. charging station)
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/bootNotificationResponse'
+
+  /steve/api/v0/core/currentStatus/{chargeBoxId}:
+    get:
+      security:
+        - TokenAuth: []
+      tags:
+        - ocpp-basic-core
+      summary: Enable access to real-time updates regarding the operational status of the station specified by the 'chargeBoxId' attribute
+      operationId: currentStatusId
+      parameters:
+        - name: chargeBoxId
+          in: path
+          description: The identifier of the chargebox (i.e. charging station)
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/currentStatusResponse'
+      
+  /steve/api/v0/core/meterValues/{chargeBoxId}:
+    get:
+      security:
+        - TokenAuth: []
+      tags:
+          - ocpp-basic-core
+      summary: Enables the retrieval of the latest meter value entry from the central system database corresponding to the station identified by the 'chargeBoxId' attribute
+      operationId: meterValuesId
+      parameters:
+        - name: chargeBoxId
+          in: path
+          description: The identifier of the chargebox (i.e. charging station)
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/meterValuesResponse'
+
+  /steve/api/v0/task/status/{taskId}:
+    get:
+      security:
+        - TokenAuth: []
+      tags:
+        - ocpp-task-manager
+      summary: Return the status of an ongoing SteVe task 
+      operationId: statusTaskId
+      description: Whenever an OCPP operation takes place in SteVe (such as `clearChargingProfile` or `setChargingProfile`), the system will dispatch a task with an identification number. This endpoint allows a client to check the result or errors of SteVe tasks by its `id`. 
+      parameters:
+        - name: taskId
+          in: path
+          description: Task Identifier
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/taskStatusResponse'
+
+components:
+  schemas:
+    bootNotificationResponse:
+      title: bootNotificationResponse
+      type: object
+      properties:
+        chargeBoxSerialNumber:
+          type: string
+          maxLength: 25
+        chargePointVendor:
+          type: string
+          maxLength: 20
+        chargePointModel:
+          type: string
+          maxLength: 20
+        chargePointSerialNumber:
+          type: string
+          maxLength: 25
+        firmwareVersion:
+          type: string
+          maxLength: 50
+        iccid:
+          type: string
+          maxLength: 20
+        imsi:
+          type: string
+          maxLength: 20
+        meterType:
+          type: string
+          maxLength: 25
+        meterSerialNumber:
+          type: string
+          maxLength: 25
+      required:
+        - chargePointVendor
+        - chargePointModel
+        
+    addChargingProfileError:
+      title: addChargingProfileResponse
+      type: object
+      properties:
+        timestamp: 
+          type: string
+          example: '2024-05-28T17:03:26.404Z'
+        status: 
+          type: integer
+          example: 400
+        error: 
+          type: string
+          example: 'Bad Request'
+        message: 
+          type: string
+          example: 'Error understanding the request'
+        
+    ChargingProfileList:
+      title: ChargingProfileList
+      type: object
+      properties: 
+        chargingProfilePk: 
+          type: integer
+          format: int32
+        stackLevel: 
+          type: integer
+          format: int32
+        description: 
+          type: string
+        profilePurpose: 
+          type: string
+        profileKind: 
+          type: string
+        recurrencyKind: 
+          type: string
+        validFrom: 
+          type: string
+          format: date-time
+        validTo: 
+          type: string
+          format: date-time
+
+    addChargingProfileResponse:
+      title: addChargingProfileResponse
+      type: object
+      properties:
+        chargingProfileId:
+          type: integer
+      required:
+        - chargingProfileId
+
+    chargingProfileBody: 
+      title: chargingProfileBody
+      type: object
+      properties:
+        description: 
+          type: string
+          example: Test Charging Profile 
+        note: 
+          type: string
+          example: This is a note
+        stackLevel: 
+          type: integer
+          format: int32
+          example: 0
+        chargingProfilePurpose: 
+          type: string
+          example: CHARGE_POINT_MAX_PROFILE
+        chargingProfileKind: 
+          type: string
+          example: ABSOLUTE
+        recurrencyKind: 
+          type: string
+          example: WEEKLY
+        validFrom: 
+          type: string
+          example: 2024-05-20T10:00:00
+        validTo: 
+          type: string
+          example: 2024-06-20T10:00:00
+        durationInSeconds: 
+          type: integer
+          format: int32
+          example: 3600
+        startSchedule: 
+          type: string
+          example: 2024-05-21T10:00:00
+        chargingRateUnit: 
+          type: string
+          example: W
+        minChargingRate: 
+          type: integer
+          format: int32
+          example: 10
+        schedulePeriodMap: 
+          type: object
+          properties: 
+            period1: 
+              type: object
+              properties: 
+                startPeriodInSeconds: 
+                  type: integer
+                  format: int32
+                  example: 0
+                powerLimit: 
+                  type: integer
+                  format: int32
+                  example: 20
+                numberPhases: 
+                  type: integer
+                  format: int32
+                  example: 3
+            period2: 
+              type: object
+              properties: 
+                startPeriodInSeconds: 
+                  type: integer
+                  format: int32
+                  example: 1800
+                powerLimit: 
+                  type: integer
+                  format: int32
+                  example: 25
+                numberPhases: 
+                  type: integer
+                  format: int32
+                  example: 3
+
+            
+      required:
+        - stackLevel
+        - chargingProfilePurpose
+        - chargingProfileKind
+        - schedulePeriodMap
+
+
+    deleteChargingProfileResponse:
+      title: deleteChargingProfileResponse
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - OK
+            - NoK
+      required:
+        - status
+
+    setChargingProfile:
+      title: setChargingProfile
+      type: object
+      properties:
+        chargingProfileId:
+          type: integer
+        connectorId:
+          type: integer
+      required:
+        - chargingProfileId
+
+    setChargingProfileResponse:
+      title: setChargingProfileResponse
+      type: object
+      properties:
+        taskId:
+          type: integer
+      required:
+        - taskId
+
+    clearChargingProfile:
+      title: clearChargingProfile
+      type: object
+      properties:
+        id: 
+          type: integer
+        connectorId:
+          type: integer
+        chargingProfilePurpose:
+          type: string
+          enum:
+            - TX_DEFAULT_PROFILE
+            - CHARGE_POINT_MAX_PROFILE
+            - TX_PROFILE
+        stackLevel:
+          type: integer
+
+    clearChargingProfileResponse:
+      title: clearChargingProfileResponse
+      type: object
+      properties:
+        taskId:
+          type: integer
+      required:
+        - taskId
+
+    taskStatusResponse:
+      title: taskStatusResponse
+      type: object
+      properties:
+        response:
+          type: string
+        errors:
+          type: string
+        chargeBoxId:
+          type: string
+
+    currentStatusResponse:
+      title: currentStatusResponse
+      type: object
+      properties:
+        connectorId:
+          type: integer
+        errorCode:
+          type: string
+          enum:
+            - ConnectorLockFailure
+            - EVCommunicationError
+            - GroundFailure
+            - HighTemperature
+            - InternalError
+            - LocalListConflict
+            - NoError
+            - OtherError
+            - OverCurrentFailure
+            - PowerMeterFailure
+            - PowerSwitchFailure
+            - ReaderFailure
+            - ResetFailure,
+            - UnderVoltage,
+            - OverVoltage,
+            - WeakSignal
+        info:
+          type: string
+          maxLength: 50
+        status:
+          type: string
+          enum:
+            - Available
+            - Preparing
+            - Charging
+            - SuspendedEVSE
+            - SuspendedEV
+            - Finishing
+            - Reserved
+            - Unavailable
+            - Faulted
+        timestamp:
+          type: string
+          format: date-time
+        vendorId:
+          type: string
+          maxLength: 255
+        vendorErrorCode:
+          type: string
+          maxLength: 50
+      required:
+        - connectorId
+        - errorCode
+        - status
+    meterValuesResponse:
+        type: object
+        properties: 
+          connectorId: 
+            type: array
+            items: 
+              type: object
+              properties:
+                transactionId: 
+                  type: string
+                  format: nullable
+                meterValues: 
+                    type: array
+                    items: 
+                      type: object
+                      properties: 
+                        timestamp: 
+                          type: string
+                          format: date-time
+                        sampledValues: 
+                          type: array
+                          items: 
+                            type: object
+                            properties: 
+                              value: 
+                                type: string
+                              context: 
+                                type: string
+                                enum:
+                                  - Interruption.Begin
+                                  - Interruption.End
+                                  - Sample.Clock
+                                  - Sample.Periodic
+                                  - Transaction.Begin
+                                  - Transaction.End
+                                  - Trigger
+                                  - Other
+                              format: 
+                                type: string
+                                enum:
+                                  - Raw
+                                  - SignedData
+                              measurand: 
+                                type: string
+                                enum:
+                                  - Energy.Active.Export.Register
+                                  - Energy.Active.Import.Register
+                                  - Energy.Reactive.Export.Register
+                                  - Energy.Reactive.Import.Register
+                                  - Energy.Active.Export.Interval
+                                  - Energy.Active.Import.Interval
+                                  - Energy.Reactive.Export.Interval
+                                  - Energy.Reactive.Import.Interval
+                                  - Power.Active.Export
+                                  - Power.Active.Import
+                                  - Power.Offered
+                                  - Power.Reactive.Export
+                                  - Power.Reactive.Import
+                                  - Power.Factor
+                                  - Current.Import
+                                  - Current.Export
+                                  - Current.Offered
+                                  - Voltage
+                                  - Frequency
+                                  - Temperature
+                                  - SoC
+                                  - RPM
+                              phase: 
+                                type: string
+                                enum:
+                                  - L1
+                                  - L2
+                                  - L3
+                                  - N
+                                  - L1-N
+                                  - L2-N
+                                  - L3-N
+                                  - L1-L2
+                                  - L2-L3
+                                  - L3-L1
+                              location: 
+                                type: string
+                                enum:
+                                  - Cable
+                                  - EV
+                                  - Inlet
+                                  - Outlet
+                                  - Body
+                              unit: 
+                                type: string
+                                enum:
+                                  - Wh
+                                  - kWh
+                                  - varh
+                                  - kvarh
+                                  - W
+                                  - kW
+                                  - VA
+                                  - kVa
+                                  - var
+                                  - kvar
+                                  - A
+                                  - V
+                                  - K
+                                  - Celcius
+                                  - Fahrenheit
+                                  - Percent 
+  securitySchemes:
+      TokenAuth:
+        name: api-key
+        type: apiKey
+        in: header
