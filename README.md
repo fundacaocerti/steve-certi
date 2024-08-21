@@ -1,8 +1,8 @@
 ![SteVe Certi](src/main/resources/webapp/static/images/logo.png) 
 
-# Instruções CERTI
+# CERTI Instructions
 
-Para desenvolver a aplicação, utilize o seguinte trecho:
+To develop the application, use the following commands:
 ```
 ./scripts/docker-build-app.sh && \
 ./scripts/docker-build-db.sh && \
@@ -10,41 +10,41 @@ Para desenvolver a aplicação, utilize o seguinte trecho:
 ./scripts/docker-run-db.sh && \
 ./scripts/docker-exec-app.sh
 ```
-
-Também é possível subir o ambiente de dev através um snapshot de um repositorio de imagens docker, incluindo as dependencias do Java:
+You can also start the development environment using a snapshot from a Docker image repository, including Java dependencies:
 
 ```
 ./scripts/run-dev-environment.sh
 ```
 
-Ao entrar no container, execute os comandos:
+Once inside the container, execute the commands:
 
 ```
 root@44e6feb18624:/code# build && run
 ```
 
-O servidor irá rodar em http://localhost:8180
+The server will run at http://localhost:8180
 
-Para abrir outro terminal no container, utilize:
+To open another terminal in the container, use:
 ```
 ./scripts/docker-exec-app.sh 
 ```
 
-Para executar os testes de integração:
+To run integration tests:
 
 ```
 root@44e6feb18624:/code# build && run
 ```
-em outro terminal:
+In another terminal:
+
 ```
  root@44e6feb18624:/code# integration-test-runner
 ```
 
-Para subir em produção, observe os scripts `./scripts/run-webserver.sh`.
-Isso dependerá da imagem Steve disponivel para o arquivo `docker-compose-production.yml`. Atualmente é feito build direto no servidor de produção.
+To deploy in production, refer to the scripts ./scripts/run-webserver.sh.
+This will depend on the Steve image available for the docker-compose-production.yml file. Currently, it is built directly on the production server.
 
-O script run-webserver está configurado para subir um servidor NGINX que roteia uma instancia do SWAGGER com a especificação em `http://localhost/docs`
-Steve também se encontrará na porta 80 devido ao NGINX em http://localhost
+The run-webserver script is configured to start an NGINX server that routes to a SWAGGER instance with the specification at http://localhost/docs
+Steve will also be available on port 80 due to NGINX at http://localhost
 
 [![build and run tests](https://github.com/steve-community/steve/actions/workflows/main.yml/badge.svg)](https://github.com/steve-community/steve/actions/workflows/main.yml)
 
